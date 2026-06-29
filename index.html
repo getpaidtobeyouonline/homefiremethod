@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Homefire Method™ — 100 Simple Tools for Tired Moms</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:780px;margin:0 auto;padding:24px 18px 60px}
+.hero{text-align:center;background:linear-gradient(135deg,var(--pink-tint),var(--teal-tint));border-radius:20px;padding:34px 20px;margin-bottom:22px}
+.hero h1{color:var(--pink);font-size:2rem;margin:0 0 8px;font-weight:800;line-height:1.2}
+.hero .sub{font-size:1.05rem;margin:0 0 4px;font-weight:700}
+.hero .tag{color:var(--teal);font-weight:800;margin-top:8px}
+.search{position:sticky;top:0;background:#fff;padding:12px 0;z-index:5;margin-bottom:6px}
+.search input{font-family:inherit;font-size:1rem;width:100%;padding:14px 16px;border:2px solid #eee;border-radius:999px;min-height:48px;background:#fff;color:var(--ink)}
+.search input:focus{outline:none;border-color:var(--pink)}
+.count{text-align:center;color:var(--muted);font-weight:700;font-size:.85rem;margin-bottom:18px}
+.cat{margin-bottom:26px}
+.cat h2{color:var(--teal);font-size:1.2rem;margin:0 0 4px;font-weight:800;display:flex;align-items:center;gap:8px}
+.cat .desc{color:var(--muted);font-size:.85rem;margin:0 0 12px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.card{display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;transition:transform .12s,box-shadow .12s}
+.card:hover,.card:focus{transform:translateY(-3px);box-shadow:0 8px 22px rgba(240,90,165,.14);border-color:#f9d6e6;outline:none}
+.card .name{color:var(--pink);font-weight:800;font-size:1.02rem;margin-bottom:4px}
+.card .d{color:#444;font-size:.86rem}
+.noresult{text-align:center;color:var(--muted);padding:40px 10px;font-weight:700;display:none}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.9rem;line-height:1.7;border-top:1px solid #f0f0f0;padding-top:20px}
+footer b{color:var(--muted)}
+.pill{display:inline-block;background:var(--pink-tint);color:var(--pink);font-weight:800;font-size:.78rem;padding:4px 12px;border-radius:999px;margin-top:10px}
+mark{background:#fce96a;border-radius:3px;padding:0 2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="hero">
+<h1>The Homefire Method™</h1>
+<p class="sub">100 simple little tools for moms starting from zero.</p>
+<p class="sub" style="font-weight:600;color:#555">Built for tiny pockets of time. No logins, no judgment, nothing to feel behind about.</p>
+<div class="pill">Pick one. That's enough today. 💛</div>
+<p class="tag">Calm out of chaos.</p>
+</div>
+
+<div class="search">
+<input id="search" type="search" placeholder="🔍 Search all 100 tools…" autocomplete="off" aria-label="Search tools">
+</div>
+<div class="count" id="count"></div>
+
+<div id="catalog"></div>
+<div class="noresult" id="noresult">No tools matched — try another word. Everything's still here when you need it. 💛</div>
+
+<footer>
+<b>The Homefire Method™</b><br>
+Calm out of chaos.<br>
+<span style="font-size:.8rem">Works offline · saves on your device · nothing tracked, ever.</span>
+</footer>
+</div>
+
+<script>
+const CATEGORIES=[
+ {name:'Home Organization & Cleaning',emoji:'🧹',desc:'Tidy in tiny, shame-free pieces.',apps:[
+  ['15-Minute Room Reset','Pick a room, get a timed 15-min cleanup that rotates daily.','15-minute-room-reset.html'],
+  ['Zone Cleaning Rotation','Splits the home into zones and shows which one to tackle today.','zone-cleaning-rotation.html'],
+  ['Declutter 5-a-Day','Five small things to toss or donate each day.','declutter-5-a-day.html'],
+  ['Junk Drawer Rescue','A step-by-step mini-system for one drawer or surface.','junk-drawer-rescue.html'],
+  ['Laundry Day Tracker','Washed, dried, folded, away — nothing lives in the basket.','laundry-day-tracker.html'],
+  ['Surprise-Company Sweep','A 10-min countdown grab-and-clear, room by room.','surprise-company-sweep.html'],
+  ['Cleaning Supply Restock','Flags what\'s low so you never run out mid-load.','cleaning-supply-restock.html'],
+  ['Chore Chart Builder','Age-friendly chores per kid, with a happy check.','chore-chart-builder.html'],
+  ['"Done Is Enough" Home Score','Rate each room 1–5 for a gentle calm score.','done-is-enough-home-score.html'],
+  ['Seasonal Deep-Clean Planner','The big clean, one small task a week.','seasonal-deep-clean-planner.html']
+ ]},
+ {name:'Money & Family CFO',emoji:'💰',desc:'Calm, beginner-friendly money tools.',apps:[
+  ['Family CFO Dashboard','A monthly snapshot of money in, out, and left.','family-cfo-dashboard.html'],
+  ['Zero-Based Budget Builder','Give every dollar a job in a few taps.','zero-based-budget-builder.html'],
+  ['Bill Due-Date Calendar','Every bill on a list so nothing sneaks up.','bill-due-date-calendar.html'],
+  ['Grocery Budget Tracker','Log each trip against a weekly cap.','grocery-budget-tracker.html'],
+  ['Sinking Funds Jar','Set aside small amounts for what\'s coming.','sinking-funds-jar.html'],
+  ['Debt Snowball Tracker','Smallest to largest, celebrating each payoff.','debt-snowball-tracker.html'],
+  ['Found Money Finder','Walk through little leaks to cut this week.','found-money-finder.html'],
+  ['No-Spend Challenge Tracker','Track no-spend days and the running total saved.','no-spend-challenge-tracker.html'],
+  ['Cash Envelope Calculator','Split the budget into digital cash envelopes.','cash-envelope-calculator.html'],
+  ['Worth-It Calculator','Decide if a purchase is worth it before buying.','worth-it-calculator.html']
+ ]},
+ {name:'Meal Planning & Grocery',emoji:'🍽️',desc:'Dinner sorted, without the daily panic.',apps:[
+  ['Weekly Meal Planner','Plan 7 dinners and auto-build the grocery list.','weekly-meal-planner.html'],
+  ['Pantry-to-Plate','Type what you have, get tonight\'s dinner idea.','pantry-to-plate.html'],
+  ['Aisle-Order Grocery List','A list that sorts itself by store aisle.','aisle-order-grocery-list.html'],
+  ['Budget Dinner Generator','Family meals under your set dollar amount.','budget-dinner-generator.html'],
+  ['Leftover Remix','Turn last night\'s leftovers into a new meal.','leftover-remix.html'],
+  ['Freezer Meal Tracker','What\'s in the freezer and when to use it by.','freezer-meal-tracker.html'],
+  ['Theme-Night Dinner Wheel','Spin a plan: Taco Tuesday, brinner, and more.','theme-night-dinner-wheel.html'],
+  ['School Lunch Rotation','A no-repeat week of packable lunches.','school-lunch-rotation.html'],
+  ['Once-a-Month Cooking Planner','Plan a batch-cook day with shopping + steps.','once-a-month-cooking-planner.html'],
+  ['Grocery Price Book','Track the lowest price so you know a real deal.','grocery-price-book.html']
+ ]},
+ {name:'Family Scheduling & Time',emoji:'📅',desc:'Everyone\'s where they need to be.',apps:[
+  ['Whole-Family Calendar','One shared view of everyone\'s events.','whole-family-calendar.html'],
+  ['Color-Coded Kid Tracker','Each child a color; see the week at a glance.','color-coded-kid-tracker.html'],
+  ['Carpool Coordinator','Who\'s driving where and when.','carpool-coordinator.html'],
+  ['Morning Launch Pad','A countdown checklist to get everyone out.','morning-launch-pad.html'],
+  ['After-School Flow','A gentle block schedule for the 3–7pm rush.','after-school-flow.html'],
+  ['Bedtime Routine Builder','A calm, repeatable bedtime per child.','bedtime-routine-builder.html'],
+  ['Appointment Reminder Hub','Doctor, dentist, school — counted down.','appointment-reminder-hub.html'],
+  ['Mom\'s Minutes Finder','Find your free 15-minute pockets.','moms-minutes-finder.html'],
+  ['Sunday Family Meeting','A gentle agenda to plan the week together.','sunday-family-meeting.html'],
+  ['Form & Permission Slip Tracker','Never lose another school form.','form-permission-slip-tracker.html']
+ ]},
+ {name:'Frugal Family Fun',emoji:'🎈',desc:'Big memories, tiny budgets.',apps:[
+  ['$0 Activity Generator','A free activity based on weather and ages.','zero-dollar-activity-generator.html'],
+  ['Rainy Day Idea Jar','Pull an indoor activity when everyone\'s stuck inside.','rainy-day-idea-jar.html'],
+  ['Movie Night Picker','Spin a kid-friendly movie + snack pairing.','movie-night-picker.html'],
+  ['Backyard Adventure Builder','Turn the yard into a hunt or obstacle course.','backyard-adventure-builder.html'],
+  ['Screen-Free Hour','One screen-free idea for tonight.','screen-free-hour.html'],
+  ['Local Free Fun Finder','Plan library days, parks, and free events.','local-free-fun-finder.html'],
+  ['Family Bucket List','A seasonal list of cheap adventures.','family-bucket-list.html'],
+  ['Kids\' Boredom Buster','Quick solo activities so you get a breather.','kids-boredom-buster.html'],
+  ['Road Trip Games Pack','Car games + a snack checklist.','road-trip-games-pack.html'],
+  ['At-Home Date Night','An after-bedtime date for under $10.','at-home-date-night.html']
+ ]},
+ {name:'Side Hustle & Extra Income',emoji:'💪',desc:'Build a little income in tiny steps.',apps:[
+  ['Side Hustle Starter Quiz','Match yourself to a hustle that fits your life.','side-hustle-starter-quiz.html'],
+  ['"Easy Money" Calendar','One small money task a day.','easy-money-calendar.html'],
+  ['First $100 Tracker','Track progress toward your first $100.','first-100-tracker.html'],
+  ['Hustle Hours Planner','Find and protect pockets of time.','hustle-hours-planner.html'],
+  ['Sell-Your-Stuff Tracker','Items listed, sold, and earned.','sell-your-stuff-tracker.html'],
+  ['Income Goal Thermometer','A visual tracker that fills as you go.','income-goal-thermometer.html'],
+  ['Profit-Per-Hour Calculator','What your hustle actually pays per hour.','profit-per-hour-calculator.html'],
+  ['Follow-Up Tracker','Never forget to follow up on a sale.','follow-up-tracker.html'],
+  ['Content Idea Generator','Post ideas for a mom selling online.','content-idea-generator.html'],
+  ['Beginner Pricing Helper','Price your work without underselling.','beginner-pricing-helper.html']
+ ]},
+ {name:'Mom Mindset & Calm',emoji:'🌸',desc:'Be as kind to you as you are to them.',apps:[
+  ['Calm-Out-of-Chaos Reset','3-minute breathing + a brain dump.','calm-out-of-chaos-reset.html'],
+  ['The "Done List"','Log what you DID do today.','the-done-list.html'],
+  ['Mom-Guilt Reframe','Type the guilty thought, get a kinder one.','mom-guilt-reframe.html'],
+  ['5-Minute Self-Care Picker','A tiny act of care that fits 5 minutes.','five-minute-self-care-picker.html'],
+  ['Gratitude Three','Three good things from today, in a minute.','gratitude-three.html'],
+  ['Overwhelm Triage','Dump the to-dos into now / later / let go.','overwhelm-triage.html'],
+  ['Energy Check-In','Rate your energy, get a matching next step.','energy-check-in.html'],
+  ['Gentle Boundaries Scripts','Words to say no without the guilt.','gentle-boundaries-scripts.html'],
+  ['Brain Dump Pad','A quick spot to empty your mental load.','brain-dump-pad.html'],
+  ['"Good Enough" Affirmation','A daily, shame-free reminder you\'re doing great.','good-enough-affirmation.html']
+ ]},
+ {name:'Routines & 15-Minute Systems',emoji:'⏱️',desc:'Small systems that actually stick.',apps:[
+  ['The 15-Minute Win','Pick one area, get a focused 15-min task.','the-15-minute-win.html'],
+  ['Realistic Morning Builder','A not-47-step morning that fits real life.','realistic-morning-builder.html'],
+  ['Evening Wind-Down','A short routine to reset the house and mind.','evening-wind-down.html'],
+  ['No-Shame Habit Tracker','One small habit, with a guilt-free restart.','no-shame-habit-tracker.html'],
+  ['Power Hour Planner','Stack small tasks into one focused hour.','power-hour-planner.html'],
+  ['Weekly Reset Checklist','Your Sunday "reset the week" mini-system.','weekly-reset-checklist.html'],
+  ['One Thing a Day','A single meaningful task so you\'re never behind.','one-thing-a-day.html'],
+  ['Routine Rescue','When it falls apart, the one step to restart.','routine-rescue.html'],
+  ['Time-Block Builder','Shape your day into simple blocks.','time-block-builder.html'],
+  ['Tiny Habit Stacker','Attach a new habit to one you already do.','tiny-habit-stacker.html']
+ ]},
+ {name:'Seasonal & Holiday',emoji:'🎄',desc:'Festive prep without the overwhelm.',apps:[
+  ['Holiday Budget Planner','Set a gift budget, track spending per person.','holiday-budget-planner.html'],
+  ['Christmas Countdown Planner','Holiday prep, one small task a day.','christmas-countdown-planner.html'],
+  ['Year-Round Gift Idea Tracker','Log gift ideas so December isn\'t a panic.','year-round-gift-idea-tracker.html'],
+  ['Back-to-School Checklist','Supplies, forms, and shopping per kid.','back-to-school-checklist.html'],
+  ['Birthday Party Planner','A budget-friendly party, start to finish.','birthday-party-planner.html'],
+  ['Seasonal Closet Swap','Walk through rotating closets each season.','seasonal-closet-swap.html'],
+  ['Thanksgiving Command Center','Menu, shopping, and a calm timeline.','thanksgiving-command-center.html'],
+  ['Summer Survival Schedule','A loose daily rhythm for summer.','summer-survival-schedule.html'],
+  ['Teacher Gift Planner','Track teacher gifts and budgets all year.','teacher-gift-planner.html'],
+  ['New Year Family Goals','A gentle family goal-setting tool.','new-year-family-goals.html']
+ ]},
+ {name:'Home Management & Life Admin',emoji:'🏠',desc:'The grown-up stuff, finally in one place.',apps:[
+  ['Household Command Center','Key contacts, info, and logins in one base.','household-command-center.html'],
+  ['Important Docs Tracker','Where birth certificates and records live.','important-docs-tracker.html'],
+  ['Car Maintenance Log','Oil changes, registration, repairs per vehicle.','car-maintenance-log.html'],
+  ['Home Inventory Builder','Belongings room by room, for insurance.','home-inventory-builder.html'],
+  ['Subscription Tracker','Every subscription and its renewal date.','subscription-tracker.html'],
+  ['Family Health Log','Meds, allergies, and appointments in one place.','family-health-log.html'],
+  ['Returns & Receipts Tracker','Never miss a return window again.','returns-receipts-tracker.html'],
+  ['Pet Care Schedule','Feeding, vet visits, and meds for pets.','pet-care-schedule.html'],
+  ['Sitter & Emergency Sheet','A printable one-pager for sitters.','sitter-emergency-sheet.html'],
+  ['The "Where Is It?" Tracker','Where you stashed the rarely-used stuff.','where-is-it-tracker.html']
+ ]}
+];
+
+const catalog=document.getElementById('catalog');
+const total=CATEGORIES.reduce((a,c)=>a+c.apps.length,0);
+document.getElementById('count').textContent=total+' free tools · 10 categories';
+
+function build(){
+ catalog.innerHTML='';
+ CATEGORIES.forEach((cat,ci)=>{
+  const sec=document.createElement('section');sec.className='cat';sec.dataset.cat=ci;
+  sec.innerHTML='<h2>'+cat.emoji+' '+cat.name+'</h2><p class="desc">'+cat.desc+'</p><div class="grid"></div>';
+  const grid=sec.querySelector('.grid');
+  cat.apps.forEach(a=>{
+   const card=document.createElement('a');card.className='card';card.href=a[2];
+   card.innerHTML='<div class="name"></div><div class="d"></div>';
+   card.querySelector('.name').textContent=a[0];
+   card.querySelector('.d').textContent=a[1];
+   card.dataset.text=(a[0]+' '+a[1]+' '+cat.name).toLowerCase();
+   grid.appendChild(card);
+  });
+  catalog.appendChild(sec);
+ });
+}
+build();
+
+const search=document.getElementById('search');
+search.addEventListener('input',()=>{
+ const q=search.value.trim().toLowerCase();
+ let any=false;
+ document.querySelectorAll('.cat').forEach(sec=>{
+  let shown=0;
+  sec.querySelectorAll('.card').forEach(card=>{
+   const match=!q||card.dataset.text.includes(q);
+   card.style.display=match?'block':'none';
+   if(match)shown++;
+  });
+  sec.style.display=shown?'block':'none';
+  if(shown)any=true;
+ });
+ document.getElementById('noresult').style.display=any?'none':'block';
+});
+</script>
+</body>
+</html>
