@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Holiday Budget Planner · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+h2{font-size:1.05rem;margin:4px 0 10px}
+.snapshot{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center}
+.snapshot .b{padding:12px 6px;border-radius:12px}
+.snapshot .b b{display:block;font-size:1.15rem}
+.snapshot .budget{background:var(--teal-tint)}.snapshot .budget b{color:var(--teal)}
+.snapshot .spent{background:var(--pink-tint)}.snapshot .spent b{color:var(--pink)}
+.snapshot .left{background:#f4f4f4}
+.snapshot small{color:#666;font-weight:700;font-size:.72rem}
+.person{padding:11px 0;border-bottom:1px solid #f3f3f3}
+.person:last-child{border-bottom:none}
+.person .top{display:flex;justify-content:space-between;align-items:center}
+.person .nm{font-weight:800}
+.person .nums{font-size:.85rem;color:#666;font-weight:700}
+.pbar{height:8px;background:#eee;border-radius:999px;overflow:hidden;margin:6px 0}
+.pbar>i{display:block;height:100%;background:var(--teal)}
+.pbar.over>i{background:var(--pink)}
+.prow{display:flex;gap:6px;margin-top:6px}
+.prow button{font-size:.78rem;padding:8px 10px;min-height:38px}
+.del{background:none;color:var(--muted);font-size:.78rem;padding:4px;min-height:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Holiday Budget Planner</h1>
+<p class="tagline">Set a gift budget and track spending per person — no January money-regret.</p>
+</header>
+<p class="howto">How to use this: set your total, add who you're buying for, and log gifts as you go.</p>
+
+<div class="card tint-pink">
+<label for="total">Total holiday gift budget</label>
+<input id="total" type="number" inputmode="decimal" min="0" placeholder="e.g. 400">
+</div>
+
+<div class="card">
+<div class="snapshot">
+<div class="b budget"><b id="sBudget">$0</b><small>Budget</small></div>
+<div class="b spent"><b id="sSpent">$0</b><small>Spent</small></div>
+<div class="b left"><b id="sLeft">$0</b><small>Left</small></div>
+</div>
+<div id="msg" style="text-align:center;font-weight:700;margin-top:8px"></div>
+</div>
+
+<div class="card tint-teal">
+<label for="pname">Add a person</label>
+<div class="row">
+<input id="pname" placeholder="Name" autocomplete="off" style="flex:2;min-width:120px">
+<input id="pbudget" type="number" inputmode="decimal" min="0" placeholder="Their budget" style="flex:1;min-width:100px">
+<button class="btn-secondary" id="add">Add</button>
+</div>
+</div>
+
+<div class="card">
+<h2>Your gift list</h2>
+<div id="list"></div>
+</div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Reset / Start over</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-holiday-budget';
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{total:0,people:[]}}catch(e){return {total:0,people:[]}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function money(n){return '$'+(n||0).toLocaleString(undefined,{maximumFractionDigits:2})}
+const total=document.getElementById('total');total.value=state.total||'';
+total.oninput=()=>{state.total=parseFloat(total.value)||0;save();render()};
+document.getElementById('add').onclick=()=>{
+ const n=document.getElementById('pname'),b=document.getElementById('pbudget');
+ const nm=n.value.trim();if(!nm){n.focus();return}
+ state.people.push({id:Date.now(),nm,budget:parseFloat(b.value)||0,spent:0});n.value='';b.value='';save();render();
+};
+function render(){
+ const spent=state.people.reduce((a,p)=>a+p.spent,0);
+ document.getElementById('sBudget').textContent=money(state.total);
+ document.getElementById('sSpent').textContent=money(spent);
+ document.getElementById('sLeft').textContent=money(state.total-spent);
+ const msg=document.getElementById('msg');
+ if(!state.total)msg.textContent='';
+ else if(spent<=state.total)msg.style.color='#1EA5B4',msg.textContent=money(state.total-spent)+' left to spend. Looking merry & on track! 🎁';
+ else msg.style.color='#F05AA5',msg.textContent='A little over by '+money(spent-state.total)+' — happens to the best of us. Adjust gently where you can.';
+ const list=document.getElementById('list');list.innerHTML='';
+ if(!state.people.length){list.innerHTML='<div class="empty">Nobody added yet — and that\'s perfectly okay. Add your first person when you\'re ready.</div>';return}
+ state.people.forEach(p=>{
+  const over=p.budget&&p.spent>p.budget;
+  const d=document.createElement('div');d.className='person';
+  d.innerHTML='<div class="top"><span class="nm"></span><span class="nums">'+money(p.spent)+(p.budget?' of '+money(p.budget):'')+'</span></div>'
+   +(p.budget?'<div class="pbar'+(over?' over':'')+'"><i style="width:'+Math.min(100,p.spent/p.budget*100)+'%"></i></div>':'')
+   +'<div class="prow"><button class="btn-ghost log">Log a gift</button><button class="del">remove</button></div>';
+  d.querySelector('.nm').textContent=p.nm;
+  d.querySelector('.log').onclick=()=>{const v=parseFloat(prompt('How much did you spend on '+p.nm+'?'));if(v>0){p.spent=Math.round((p.spent+v)*100)/100;save();render()}};
+  d.querySelector('.del').onclick=()=>{state.people=state.people.filter(x=>x.id!==p.id);save();render()};
+  list.appendChild(d);
+ });
+}
+document.getElementById('reset').onclick=()=>{if(confirm('Clear the holiday budget?')){localStorage.removeItem(KEY);state={total:0,people:[]};total.value='';render()}};
+render();
+</script>
+</body>
+</html>

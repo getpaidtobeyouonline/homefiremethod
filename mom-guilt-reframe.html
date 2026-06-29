@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mom-Guilt Reframe · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+textarea{min-height:90px;resize:vertical}
+.reframe{background:var(--teal-tint);border-radius:16px;padding:20px;text-align:center}
+.reframe .lbl{color:var(--teal);font-weight:700;font-size:.85rem}
+.reframe .text{font-size:1.2rem;font-weight:800;color:var(--teal);margin-top:8px}
+h2{font-size:1.05rem;margin:4px 0 10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Mom-Guilt Reframe</h1>
+<p class="tagline">Type the guilty thought weighing on you, and get a kinder, truer way to see it.</p>
+</header>
+<p class="howto">How to use this: write what you feel guilty about, then tap for a gentle reframe. You deserve grace.</p>
+
+<div class="card tint-pink">
+<label for="thought">What's the guilty thought?</label>
+<textarea id="thought" placeholder="e.g. I let them have too much screen time today."></textarea>
+<button class="btn-primary" id="go" style="width:100%;margin-top:10px">💛 Reframe it gently</button>
+</div>
+
+<div id="result"></div>
+
+<div class="card tint-teal" style="font-weight:700;color:#1EA5B4;text-align:center">
+A good mom feels guilt because she cares. The guilt isn't proof you're failing — it's proof you love them.
+</div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Clear</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-guilt-reframe';
+const REFRAMES=[
+ 'Your kids don\'t need a perfect mom. They need a real one — and that\'s exactly who they have.',
+ 'One hard day is a moment, not a pattern. Tomorrow is brand new, and so are you.',
+ 'You\'re comparing your behind-the-scenes to everyone\'s highlight reel. Be as kind to yourself as you\'d be to a friend.',
+ 'Rest isn\'t neglect. A mom who refills her own cup has more to give — that\'s wisdom, not weakness.',
+ 'You did the best you could with the energy you had today. That has always been enough.',
+ 'They will remember feeling loved far more than any single thing you "got wrong."',
+ 'Good enough truly is good enough. Perfection was never the assignment.',
+ 'The fact that you\'re worried about it means you\'re a thoughtful, caring parent. That matters.',
+ 'You\'re allowed to have needs too. Taking care of yourself teaches them to take care of themselves.',
+ 'Screen time, packaged snacks, a skipped bath — none of it undoes the love your kids feel every day.',
+ 'You can\'t pour from an empty cup, and you\'ve been pouring all day. Be gentle with yourself tonight.',
+ 'Some days survival IS the win. You showed up, and that counts more than you know.'
+];
+const thought=document.getElementById('thought');
+try{thought.value=localStorage.getItem(KEY)||''}catch(e){}
+thought.oninput=()=>localStorage.setItem(KEY,thought.value);
+let last=-1;
+document.getElementById('go').onclick=()=>{
+ let i;do{i=Math.floor(Math.random()*REFRAMES.length)}while(i===last);last=i;
+ document.getElementById('result').innerHTML='<div class="card reframe"><div class="lbl">A kinder way to see it</div><div class="text">'+REFRAMES[i]+'</div></div>';
+};
+document.getElementById('reset').onclick=()=>{thought.value='';localStorage.removeItem(KEY);document.getElementById('result').innerHTML=''};
+</script>
+</body>
+</html>

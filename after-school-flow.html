@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>After-School Flow · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+h2{font-size:1.1rem;margin:4px 0 10px}
+.block{display:flex;align-items:center;gap:12px;padding:14px 12px;border-radius:12px;margin-bottom:10px;background:var(--teal-tint)}
+.block.done{opacity:.5}
+.block .time{font-weight:800;color:var(--teal);width:64px;flex:0 0 auto;font-size:.9rem}
+.block .what{flex:1;font-weight:700;font-size:1.05rem}
+.block.done .what{text-decoration:line-through}
+.block input[type=checkbox]{width:28px;height:28px;min-height:28px;accent-color:var(--teal)}
+.block .emoji{font-size:1.4rem}
+.del{background:none;color:#aaa;font-size:.78rem;padding:4px;min-height:auto}
+.now{box-shadow:0 0 0 3px var(--pink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>After-School Flow</h1>
+<p class="tagline">A gentle block schedule for the chaotic 3–7pm window — no rigid clock, just rhythm.</p>
+</header>
+<p class="howto">How to use this: follow the blocks in order, ticking each off. Tweak the times to fit your real afternoon.</p>
+
+<div class="card">
+<h2>Today's flow</h2>
+<div id="list"></div>
+<div class="row" style="margin-top:12px">
+<input id="newWhat" placeholder="Add a block" autocomplete="off" style="flex:2;min-width:120px">
+<input id="newTime" type="time" style="flex:1;min-width:110px">
+<button class="btn-secondary" id="add">Add</button>
+</div>
+</div>
+
+<div class="card tint-pink">
+<div style="text-align:center;font-weight:700;color:#a23b73" id="cheer">Pick up where the day is — a missed block is never a failure.</div>
+</div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Reset today / Start over</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-after-school';
+const DEFAULTS=[
+ {time:'15:00',what:'Snack & unwind',emoji:'🍎'},
+ {time:'15:30',what:'Outside / wiggle time',emoji:'🏃'},
+ {time:'16:00',what:'Homework window',emoji:'✏️'},
+ {time:'16:45',what:'Free play / screens',emoji:'🧸'},
+ {time:'17:30',what:'Dinner together',emoji:'🍽️'},
+ {time:'18:15',what:'Tidy & bath',emoji:'🛁'},
+ {time:'18:45',what:'Wind down for bed',emoji:'🌙'}
+];
+let state=load();
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.date===today())return s}catch(e){}return {date:today(),blocks:DEFAULTS.map(b=>({...b,done:false}))}}
+function today(){return new Date().toISOString().slice(0,10)}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function fmtTime(t){if(!t)return '';const[h,m]=t.split(':');const hh=+h%12||12;return hh+':'+m+(+h<12?'am':'pm')}
+function nowMin(){const d=new Date();return d.getHours()*60+d.getMinutes()}
+function toMin(t){if(!t)return 0;const[h,m]=t.split(':');return +h*60+ +m}
+
+document.getElementById('add').onclick=()=>{
+ const w=document.getElementById('newWhat').value.trim();const t=document.getElementById('newTime').value;
+ if(!w)return;state.blocks.push({time:t,what:w,emoji:'⭐',done:false});state.blocks.sort((a,b)=>toMin(a.time)-toMin(b.time));document.getElementById('newWhat').value='';document.getElementById('newTime').value='';save();render();
+};
+function render(){
+ const list=document.getElementById('list');list.innerHTML='';
+ const n=nowMin();
+ let curIdx=-1;
+ state.blocks.forEach((b,i)=>{if(toMin(b.time)<=n)curIdx=i});
+ state.blocks.forEach((b,i)=>{
+  const el=document.createElement('label');el.className='block'+(b.done?' done':'')+(i===curIdx&&!b.done?' now':'');
+  el.innerHTML='<input type="checkbox" '+(b.done?'checked':'')+'><span class="emoji">'+b.emoji+'</span><span class="time">'+(b.time?fmtTime(b.time):'')+'</span><span class="what"></span><button class="del">✕</button>';
+  el.querySelector('.what').textContent=b.what;
+  el.querySelector('input').onchange=e=>{b.done=e.target.checked;save();render()};
+  el.querySelector('.del').onclick=()=>{state.blocks=state.blocks.filter(x=>x!==b);save();render()};
+  list.appendChild(el);
+ });
+ const done=state.blocks.filter(b=>b.done).length;
+ document.getElementById('cheer').textContent = done===state.blocks.length&&state.blocks.length
+  ? '🌙 You made it through the afternoon. Bravo — the hard hours are behind you.'
+  : 'Pick up where the day is — a missed block is never a failure.';
+}
+document.getElementById('reset').onclick=()=>{if(confirm('Reset today\'s flow?')){localStorage.removeItem(KEY);state={date:today(),blocks:DEFAULTS.map(b=>({...b,done:false}))};render()}};
+render();
+</script>
+</body>
+</html>

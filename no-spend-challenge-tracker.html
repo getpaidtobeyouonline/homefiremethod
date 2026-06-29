@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>No-Spend Challenge Tracker · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+h2{font-size:1.1rem;margin:4px 0 10px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:center}
+.stats .b{padding:14px;border-radius:12px}
+.stats .b b{display:block;font-size:1.8rem;font-weight:800}
+.days{padding:14px;border-radius:12px;background:var(--teal-tint)}
+.days .b{color:var(--teal)}
+.saved{background:var(--pink-tint)}.saved .b{color:var(--pink)}
+.stats .b small{color:#666;font-weight:700;font-size:.78rem}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:8px}
+.cell{aspect-ratio:1;border-radius:10px;background:#f1f1f1;display:flex;align-items:center;justify-content:center;font-weight:800;cursor:pointer;font-size:.85rem;color:#aaa}
+.cell.win{background:var(--teal);color:#fff}
+.cell.spent{background:var(--pink-tint);color:var(--pink)}
+.dayrow{display:flex;gap:8px;align-items:center;margin-top:14px}
+.dayrow button{flex:1}
+.amtset{display:flex;gap:8px;align-items:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>No-Spend Challenge Tracker</h1>
+<p class="tagline">Track your no-spend days and watch the savings grow — one calm day at a time.</p>
+</header>
+<p class="howto">How to use this: at the end of each day, tap "No-spend day ✓" or "Spent today." That's it.</p>
+
+<div class="card">
+<div class="stats">
+<div class="b days"><b id="streak">0</b><small>No-spend days</small></div>
+<div class="b saved"><b id="saved">$0</b><small>Estimated saved</small></div>
+</div>
+<div class="amtset" style="margin-top:12px">
+<label for="daily" style="margin:0;white-space:nowrap">Avg you'd spend/day $</label>
+<input id="daily" type="number" inputmode="decimal" min="0" value="20" style="width:90px">
+</div>
+</div>
+
+<div class="card tint-teal">
+<h2>Today</h2>
+<div id="todayMsg" style="font-weight:700;margin-bottom:6px"></div>
+<div class="dayrow">
+<button class="btn-secondary" id="win">No-spend day ✓</button>
+<button class="btn-ghost" id="spent">Spent today</button>
+</div>
+<div style="text-align:center;color:#1EA5B4;font-weight:700;margin-top:10px" id="cheer"></div>
+</div>
+
+<div class="card">
+<h2>Your last 28 days</h2>
+<div class="grid" id="grid"></div>
+<p style="color:#999;font-size:.8rem;margin:10px 0 0">A spent day is never a fail — it just isn't a no-spend day. Tomorrow's a fresh start.</p>
+</div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Reset / Start over</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-no-spend';
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{daily:20,days:{}}}catch(e){return {daily:20,days:{}}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function stamp(d){return d.toISOString().slice(0,10)}
+function today(){return stamp(new Date())}
+
+const daily=document.getElementById('daily');
+daily.value=state.daily;
+daily.oninput=()=>{state.daily=parseFloat(daily.value)||0;save();render()};
+
+document.getElementById('win').onclick=()=>{state.days[today()]='win';save();render();flash('That\'s a win! Money stayed put today. 💛')};
+document.getElementById('spent').onclick=()=>{state.days[today()]='spent';save();render();flash('All good — you logged it honestly. That\'s what counts.')};
+function flash(m){document.getElementById('cheer').textContent=m}
+
+function render(){
+ const wins=Object.values(state.days).filter(v=>v==='win').length;
+ document.getElementById('streak').textContent=wins;
+ document.getElementById('saved').textContent='$'+(wins*(state.daily||0)).toLocaleString();
+ const t=state.days[today()];
+ document.getElementById('todayMsg').textContent = t==='win'?'Logged: no-spend day ✓ Lovely.':t==='spent'?'Logged: you spent today — totally fine.':'How did today go?';
+ const grid=document.getElementById('grid');grid.innerHTML='';
+ const base=new Date();
+ for(let i=27;i>=0;i--){
+  const d=new Date(base);d.setDate(base.getDate()-i);
+  const key=stamp(d);const v=state.days[key];
+  const c=document.createElement('div');
+  c.className='cell'+(v==='win'?' win':v==='spent'?' spent':'');
+  c.textContent=d.getDate();
+  c.title=key;
+  c.onclick=()=>{state.days[key]=v==='win'?'spent':v==='spent'?undefined:'win';if(!state.days[key])delete state.days[key];save();render()};
+  grid.appendChild(c);
+ }
+}
+document.getElementById('reset').onclick=()=>{if(confirm('Start a fresh challenge?')){localStorage.removeItem(KEY);state={daily:20,days:{}};daily.value=20;document.getElementById('cheer').textContent='';save();render()}};
+render();
+</script>
+</body>
+</html>

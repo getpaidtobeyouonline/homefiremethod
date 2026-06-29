@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evening Wind-Down · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+h2{font-size:1.05rem;margin:4px 0 10px}
+.task{display:flex;align-items:center;gap:12px;padding:13px 8px;border-radius:10px;margin-bottom:6px;background:#f7f7f7}
+.task.done{background:var(--teal-tint);opacity:.7}
+.task input[type=checkbox]{width:28px;height:28px;min-height:28px;accent-color:var(--teal)}
+.task .e{font-size:1.3rem}
+.task .what{flex:1;font-weight:700}
+.task.done .what{text-decoration:line-through;color:var(--muted)}
+.bar{height:14px;background:#eee;border-radius:999px;overflow:hidden;margin:10px 0}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--pink));width:0;transition:width .3s}
+.win{background:linear-gradient(135deg,var(--pink-tint),var(--teal-tint));border-radius:14px;padding:18px;text-align:center;font-weight:800;color:#333}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Evening Wind-Down</h1>
+<p class="tagline">A short, soothing routine to reset the house and your mind before bed.</p>
+</header>
+<p class="howto">How to use this: do these few gentle things in any order. The goal is a calmer tomorrow-morning-you.</p>
+
+<div class="card">
+<div class="bar"><i id="bar"></i></div>
+<div id="list"></div>
+</div>
+
+<div id="win"></div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Reset for tonight</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-wind-down';
+const DEFAULTS=[
+ ['🍽️','Quick kitchen reset — sink empty, counter wiped'],
+ ['🧺','5-minute tidy of the main room'],
+ ['👜','Set out what tomorrow needs (bags, keys, clothes)'],
+ ['📋','Glance at tomorrow & note your one main thing'],
+ ['📵','Phones to charge, away from the bed'],
+ ['🛁','Wash up & into comfies'],
+ ['🌙','One quiet thing for you — tea, a page, a breath']
+];
+let state=load();
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.date===today())return s}catch(e){}return {date:today(),tasks:DEFAULTS.map(d=>({e:d[0],t:d[1],done:false}))}}
+function today(){return new Date().toISOString().slice(0,10)}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function render(){
+ const list=document.getElementById('list');list.innerHTML='';
+ state.tasks.forEach(task=>{
+  const el=document.createElement('label');el.className='task'+(task.done?' done':'');
+  el.innerHTML='<input type="checkbox" '+(task.done?'checked':'')+'><span class="e">'+task.e+'</span><span class="what"></span>';
+  el.querySelector('.what').textContent=task.t;
+  el.querySelector('input').onchange=e=>{task.done=e.target.checked;save();render()};
+  list.appendChild(el);
+ });
+ const done=state.tasks.filter(t=>t.done).length;
+ document.getElementById('bar').style.width=(done/state.tasks.length*100)+'%';
+ document.getElementById('win').innerHTML = done===state.tasks.length
+  ? '<div class="card win">🌙 House reset, mind eased. You closed the day well. Sleep easy — tomorrow-you says thank you. 💛</div>' : '';
+}
+document.getElementById('reset').onclick=()=>{localStorage.removeItem(KEY);state={date:today(),tasks:DEFAULTS.map(d=>({e:d[0],t:d[1],done:false}))};render()};
+render();
+</script>
+</body>
+</html>

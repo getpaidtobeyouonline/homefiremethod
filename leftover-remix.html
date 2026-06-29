@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leftover Remix · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+h2{font-size:1.1rem;margin:4px 0 10px}
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{background:#f4f4f4;color:#555;border-radius:999px;padding:10px 14px}
+.pick button.on{background:var(--teal);color:#fff}
+.idea{background:var(--pink-tint);border-radius:14px;padding:18px;text-align:center;margin-bottom:10px}
+.idea .name{font-size:1.3rem;font-weight:800;color:var(--pink);margin-bottom:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Leftover Remix</h1>
+<p class="tagline">Last night's dinner, reborn as something new — less waste, zero boredom.</p>
+</header>
+<p class="howto">How to use this: tap what's left in the fridge, then get a fresh way to serve it tonight.</p>
+
+<div class="card tint-teal">
+<label>What are you working with?</label>
+<div class="pick" id="pick"></div>
+</div>
+
+<button class="btn-primary" id="go" style="width:100%;margin-bottom:14px">✨ Remix it</button>
+
+<div id="result"></div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Reset / Start over</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-leftover';
+const BASES=['Chicken','Rice','Pasta','Ground beef','Veggies','Potatoes','Beans','Pork','Bread'];
+const REMIX={
+ Chicken:['Chicken quesadillas — shred it with cheese into tortillas','Quick chicken fried rice','Chicken salad wraps for an easy dinner','Toss into a soup with whatever broth you have'],
+ Rice:['Egg fried rice with frozen veg','Stuffed peppers or a rice bake','Crispy rice cakes in a hot pan','Rice pudding for a sweet treat'],
+ Pasta:['Baked pasta with cheese on top','Pasta frittata — mix with eggs and fry','Cold pasta salad for lunch','Stir into soup to bulk it up'],
+ 'Ground beef':['Taco night, round two','Sloppy joes on any bread','Stir into a quick chili','Top a baked potato bar'],
+ Veggies:['Blend into a cozy soup','Veggie fried rice','Fold into an omelette or frittata','Pile onto a homemade pizza'],
+ Potatoes:['Crispy breakfast hash','Mash into potato cakes and fry','Loaded potato skins','Add to a hearty soup'],
+ Beans:['Bean & cheese burritos','Mash for quick refried beans','Toss into a taco salad','Simmer into a soup'],
+ Pork:['Pulled pork sandwiches','Pork fried rice','Tacos with a squeeze of lime','Chop into a stir-fry'],
+ Bread:['French toast for dinner','Garlic bread or croutons','Bread pudding for dessert','Quick mini pizzas']
+};
+let sel=[];
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return []}}
+function save(){localStorage.setItem(KEY,JSON.stringify(sel))}
+sel=Array.isArray(state)?state:[];
+
+function render(){
+ const p=document.getElementById('pick');p.innerHTML='';
+ BASES.forEach(b=>{const btn=document.createElement('button');btn.textContent=b;if(sel.includes(b))btn.classList.add('on');btn.onclick=()=>{sel.includes(b)?sel=sel.filter(x=>x!==b):sel.push(b);save();render()};p.appendChild(btn)});
+}
+document.getElementById('go').onclick=()=>{
+ const res=document.getElementById('result');
+ if(!sel.length){res.innerHTML='<div class="card"><div class="empty">Tap a leftover or two above, then I\'ll remix it. 💛</div></div>';return}
+ let html='';
+ sel.forEach(b=>{
+  const ideas=REMIX[b];const idea=ideas[Math.floor(Math.random()*ideas.length)];
+  html+='<div class="card idea"><div class="name">'+b+' → tonight</div><div>'+idea+'</div></div>';
+ });
+ res.innerHTML=html+'<p style="text-align:center;color:#1EA5B4;font-weight:700">Using up leftovers = money saved and zero waste. Win. 💛</p>';
+};
+document.getElementById('reset').onclick=()=>{sel=[];localStorage.removeItem(KEY);document.getElementById('result').innerHTML='';render()};
+render();
+</script>
+</body>
+</html>

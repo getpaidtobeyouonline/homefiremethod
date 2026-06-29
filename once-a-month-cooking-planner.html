@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Once-a-Month Cooking Planner · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+h2{font-size:1.1rem;margin:4px 0 10px}
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tabs button{flex:1;background:#f4f4f4;color:#666;font-size:.85rem}
+.tabs button.on{background:var(--teal);color:#fff}
+.item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f3f3f3}
+.item:last-child{border-bottom:none}
+.item input[type=checkbox]{width:24px;height:24px;min-height:24px;accent-color:var(--teal)}
+.item.done span{text-decoration:line-through;color:var(--muted)}
+.item span{flex:1}
+.del{background:none;color:var(--muted);font-size:.8rem;padding:4px;min-height:auto}
+.step{counter-increment:step;display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #f3f3f3}
+.step:last-child{border-bottom:none}
+.step .n{background:var(--pink);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;flex:0 0 auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Once-a-Month Cooking Planner</h1>
+<p class="tagline">One batch-cook day, a freezer full of dinners. Here's your gentle game plan.</p>
+</header>
+<p class="howto">How to use this: pick the meals you'll batch, build the shopping list, then follow the prep steps on cook day.</p>
+
+<div class="card">
+<div class="tabs" id="tabs">
+<button data-t="meals" class="on">Meals</button>
+<button data-t="shop">Shopping</button>
+<button data-t="steps">Cook day</button>
+</div>
+<div id="panel"></div>
+</div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Reset / Start over</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-oamc';
+const STEPS=[
+ 'Clear counters and set out containers, labels, and a marker.',
+ 'Do all the chopping at once — onions, peppers, anything shared.',
+ 'Brown all the ground meat together, then divide between recipes.',
+ 'Assemble freezer bags / pans one recipe at a time.',
+ 'Label each with the meal name and today\'s date.',
+ 'Cool, then stack flat in the freezer. Wipe down and put your feet up — you earned it.'
+];
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{tab:'meals',meals:[],shop:[],steps:STEPS.map(()=>false)}}catch(e){return {tab:'meals',meals:[],shop:[],steps:STEPS.map(()=>false)}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{state.tab=b.dataset.t;save();render()});
+
+function listEditor(arr,placeholder,emptyMsg){
+ const wrap=document.createElement('div');
+ const inputRow=document.createElement('div');inputRow.className='row';
+ inputRow.innerHTML='<input placeholder="'+placeholder+'" style="flex:1;min-width:140px"><button class="btn-secondary">Add</button>';
+ const inp=inputRow.querySelector('input');
+ const addFn=()=>{const v=inp.value.trim();if(v){arr.push({id:Date.now()+Math.random(),t:v,done:false});inp.value='';save();render()}};
+ inputRow.querySelector('button').onclick=addFn;
+ inp.addEventListener('keydown',e=>{if(e.key==='Enter')addFn()});
+ wrap.appendChild(inputRow);
+ const list=document.createElement('div');list.style.marginTop='10px';
+ if(!arr.length)list.innerHTML='<div class="empty">'+emptyMsg+'</div>';
+ arr.forEach(it=>{
+  const r=document.createElement('label');r.className='item'+(it.done?' done':'');
+  r.innerHTML='<input type="checkbox" '+(it.done?'checked':'')+'><span></span><button class="del">✕</button>';
+  r.querySelector('span').textContent=it.t;
+  r.querySelector('input').onchange=e=>{it.done=e.target.checked;save();render()};
+  r.querySelector('.del').onclick=()=>{const i=arr.indexOf(it);arr.splice(i,1);save();render()};
+  list.appendChild(r);
+ });
+ wrap.appendChild(list);
+ return wrap;
+}
+function render(){
+ document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===state.tab));
+ const panel=document.getElementById('panel');panel.innerHTML='';
+ if(state.tab==='meals'){
+  const h=document.createElement('h2');h.textContent='Meals to batch-cook';panel.appendChild(h);
+  panel.appendChild(listEditor(state.meals,'e.g. Lasagna ×2','No meals chosen yet — and that\'s perfectly okay. Add a few you\'d love to have ready.'));
+ }else if(state.tab==='shop'){
+  const h=document.createElement('h2');h.textContent='Shopping list';panel.appendChild(h);
+  panel.appendChild(listEditor(state.shop,'e.g. 3 lbs ground beef','Nothing here yet — add ingredients for your chosen meals.'));
+ }else{
+  const h=document.createElement('h2');h.textContent='Cook-day steps';panel.appendChild(h);
+  STEPS.forEach((s,i)=>{
+   const r=document.createElement('label');r.className='item'+(state.steps[i]?' done':'');
+   r.innerHTML='<input type="checkbox" '+(state.steps[i]?'checked':'')+'><span></span>';
+   r.querySelector('span').textContent=s;
+   r.querySelector('input').onchange=e=>{state.steps[i]=e.target.checked;save();render()};
+   panel.appendChild(r);
+  });
+  if(state.steps.every(Boolean))panel.innerHTML+='<div style="background:var(--teal-tint);color:var(--teal);border-radius:10px;padding:12px;text-align:center;font-weight:800;margin-top:10px">🎉 Batch day done — future-you is going to be so grateful.</div>';
+ }
+}
+document.getElementById('reset').onclick=()=>{if(confirm('Start a fresh plan?')){localStorage.removeItem(KEY);state={tab:'meals',meals:[],shop:[],steps:STEPS.map(()=>false)};render()}};
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Color-Coded Kid Tracker · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+h2{font-size:1.1rem;margin:4px 0 10px}
+.kids{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.kidchip{padding:8px 14px;border-radius:999px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px}
+.kidchip button{background:rgba(255,255,255,.3);color:#fff;padding:0 6px;min-height:auto;border-radius:6px}
+.week{display:grid;grid-template-columns:48px 1fr;gap:0}
+.wd{padding:10px 0;border-bottom:1px solid #f3f3f3;font-weight:800;color:#666;font-size:.85rem;display:flex;align-items:center}
+.wcell{padding:8px 0;border-bottom:1px solid #f3f3f3;min-height:44px}
+.evt{display:inline-flex;align-items:center;gap:6px;background:#f4f4f4;border-radius:999px;padding:4px 10px;margin:2px;font-size:.82rem;font-weight:700}
+.evt .b{width:9px;height:9px;border-radius:50%}
+.evt button{background:none;padding:0;min-height:auto;color:#999;font-size:.85rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Color-Coded Kid Tracker</h1>
+<p class="tagline">Give each child a color and see the whole week at a single, calming glance.</p>
+</header>
+<p class="howto">How to use this: add each kid, then tap a day to add their activity. Colors make it instant.</p>
+
+<div class="card tint-teal">
+<div class="kids" id="kids"></div>
+<div class="row">
+<input id="kname" placeholder="Add a child's name" autocomplete="off" style="flex:1;min-width:140px">
+<button class="btn-secondary" id="addKid">Add</button>
+</div>
+</div>
+
+<div class="card">
+<h2>This week</h2>
+<div class="week" id="week"></div>
+</div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Reset / Start over</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-kid-tracker';
+const COLORS=['#F05AA5','#1EA5B4','#7B61FF','#F5A623','#34A853','#E0431F'];
+const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{kids:[],events:[]}}catch(e){return {kids:[],events:[]}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+
+document.getElementById('addKid').onclick=()=>{
+ const el=document.getElementById('kname');const v=el.value.trim();if(!v)return;
+ state.kids.push({id:Date.now(),nm:v,color:COLORS[state.kids.length%COLORS.length]});el.value='';save();render();
+};
+document.getElementById('kname').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('addKid').click()});
+
+function render(){
+ const kids=document.getElementById('kids');kids.innerHTML='';
+ if(!state.kids.length)kids.innerHTML='<span style="color:#999">No kids added yet — add one to start.</span>';
+ state.kids.forEach(k=>{
+  const c=document.createElement('span');c.className='kidchip';c.style.background=k.color;
+  c.innerHTML='<span></span><button>✕</button>';c.querySelector('span').textContent=k.nm;
+  c.querySelector('button').onclick=()=>{state.kids=state.kids.filter(x=>x.id!==k.id);state.events=state.events.filter(e=>e.kid!==k.id);save();render()};
+  kids.appendChild(c);
+ });
+ const w=document.getElementById('week');w.innerHTML='';
+ DAYS.forEach((d,di)=>{
+  const dl=document.createElement('div');dl.className='wd';dl.textContent=d;w.appendChild(dl);
+  const cell=document.createElement('div');cell.className='wcell';
+  state.events.filter(e=>e.day===di).forEach(e=>{
+   const k=state.kids.find(x=>x.id===e.kid);if(!k)return;
+   const tag=document.createElement('span');tag.className='evt';
+   tag.innerHTML='<span class="b" style="background:'+k.color+'"></span><span></span><button>✕</button>';
+   tag.querySelector('span:nth-child(2)').textContent=e.what;
+   tag.querySelector('button').onclick=()=>{state.events=state.events.filter(x=>x!==e);save();render()};
+   cell.appendChild(tag);
+  });
+  const add=document.createElement('button');add.className='btn-ghost';add.textContent='+';add.style.cssText='padding:4px 12px;min-height:36px;margin:2px;font-size:.9rem';
+  add.onclick=()=>{
+   if(!state.kids.length){alert('Add a child first 💛');return}
+   const what=prompt('What\'s the activity for '+d+'?');if(!what)return;
+   let kid=state.kids[0].id;
+   if(state.kids.length>1){const names=state.kids.map((k,i)=>(i+1)+'. '+k.nm).join('\n');const pick=prompt('Which child?\n'+names);const idx=parseInt(pick,10)-1;if(idx>=0&&idx<state.kids.length)kid=state.kids[idx].id}
+   state.events.push({day:di,kid,what});save();render();
+  };
+  cell.appendChild(add);
+  w.appendChild(cell);
+ });
+}
+document.getElementById('reset').onclick=()=>{if(confirm('Clear all kids and events?')){localStorage.removeItem(KEY);state={kids:[],events:[]};render()}};
+render();
+</script>
+</body>
+</html>

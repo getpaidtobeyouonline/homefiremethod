@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sitter & Emergency Sheet · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+h2{font-size:1rem;margin:0 0 8px;color:var(--teal)}
+.field{margin-bottom:10px}
+textarea{min-height:70px;resize:vertical}
+.actions{display:flex;gap:10px}
+.actions button{flex:1}
+@media print{
+ .noprint{display:none!important}
+ body{background:#fff}
+ .card{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
+ header h1{color:#000}
+}
+.sheet h2{color:var(--pink)}
+.line{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dotted #eee}
+.line .l{font-weight:700;color:#666}
+.line .v{font-weight:700;text-align:right}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Sitter & Emergency Sheet</h1>
+<p class="tagline">Fill it once, print a tidy one-pager for any sitter — calm confidence for date night.</p>
+</header>
+<p class="howto noprint">How to use this: fill in the details, then tap Print for a clean sheet to leave on the counter.</p>
+
+<div class="card noprint">
+<h2>Quick fill</h2>
+<div class="field"><label>Parents' phone(s)</label><input data-k="parents" placeholder="Your mobile numbers"></div>
+<div class="field"><label>Home address</label><input data-k="address" placeholder="For emergencies"></div>
+<div class="field"><label>Emergency contact (name & phone)</label><input data-k="emergency" placeholder="A trusted nearby adult"></div>
+<div class="field"><label>Doctor / pediatrician</label><input data-k="doctor" placeholder="Name & number"></div>
+<div class="field"><label>Kids (names, ages, allergies)</label><textarea data-k="kids" placeholder="e.g. Mia (4, peanut allergy), Sam (2)"></textarea></div>
+<div class="field"><label>Bedtime & routine notes</label><textarea data-k="routine" placeholder="Bedtimes, snacks, comfort items, screen rules"></textarea></div>
+<div class="field"><label>House notes (alarm, pets, what's off-limits)</label><textarea data-k="house" placeholder="Anything the sitter should know"></textarea></div>
+</div>
+
+<div class="card sheet" id="sheet">
+<h2>👶 Sitter & Emergency Info</h2>
+<div id="lines"></div>
+<div id="blocks"></div>
+<p style="text-align:center;color:#999;font-size:.8rem;margin-top:14px">In a true emergency, call your local emergency number first.</p>
+</div>
+
+<div class="actions noprint">
+<button class="btn-primary" id="print">🖨️ Print sheet</button>
+<button class="btn-ghost" id="reset">Reset</button>
+</div>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-sitter';
+const LINES=[['parents','📞 Parents'],['address','🏠 Address'],['emergency','🚨 Emergency contact'],['doctor','🩺 Doctor']];
+const BLOCKS=[['kids','👧 Kids'],['routine','🌙 Routine'],['house','🏡 House notes']];
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return {}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+document.querySelectorAll('[data-k]').forEach(el=>{el.value=state[el.dataset.k]||'';el.oninput=()=>{state[el.dataset.k]=el.value;save();render()}});
+function render(){
+ const lines=document.getElementById('lines');lines.innerHTML='';
+ LINES.forEach(([k,l])=>{const v=state[k];if(!v)return;const d=document.createElement('div');d.className='line';d.innerHTML='<span class="l">'+l+'</span><span class="v"></span>';d.querySelector('.v').textContent=v;lines.appendChild(d)});
+ const blocks=document.getElementById('blocks');blocks.innerHTML='';
+ BLOCKS.forEach(([k,l])=>{const v=state[k];if(!v)return;const d=document.createElement('div');d.style.marginTop='10px';d.innerHTML='<div style="font-weight:800;color:#666">'+l+'</div><div class="bv" style="white-space:pre-wrap"></div>';d.querySelector('.bv').textContent=v;blocks.appendChild(d)});
+ if(!Object.keys(state).some(k=>state[k]))document.getElementById('lines').innerHTML='<p style="color:#999;text-align:center">Fill in the details above and they\'ll appear here, ready to print. 💛</p>';
+}
+document.getElementById('print').onclick=()=>window.print();
+document.getElementById('reset').onclick=()=>{if(confirm('Clear the sheet?')){localStorage.removeItem(KEY);state={};document.querySelectorAll('[data-k]').forEach(el=>el.value='');render()}};
+render();
+</script>
+</body>
+</html>

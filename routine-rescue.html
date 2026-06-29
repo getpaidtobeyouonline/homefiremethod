@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Routine Rescue · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+.areas{display:flex;flex-direction:column;gap:10px;margin-bottom:8px}
+.area{display:flex;align-items:center;gap:14px;padding:16px;border-radius:14px;background:#f7f7f7;cursor:pointer;width:100%;text-align:left;border:2px solid transparent}
+.area:active{transform:scale(.99)}
+.area .e{font-size:1.8rem}
+.area .t{font-weight:800;font-size:1.05rem}
+.step{background:var(--teal-tint);border-radius:16px;padding:24px;text-align:center}
+.step .lbl{color:var(--teal);font-weight:700;font-size:.85rem}
+.step .one{font-size:1.4rem;font-weight:800;color:var(--teal);margin:8px 0}
+.reassure{background:var(--pink-tint);border-radius:12px;padding:14px;text-align:center;font-weight:700;color:#a23b73;margin-bottom:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Routine Rescue</h1>
+<p class="tagline">Everything fell apart? Breathe. Here's the ONE next step to get back on track.</p>
+</header>
+<p class="howto">How to use this: pick whatever feels most off the rails, and we'll give you a single, doable restart step.</p>
+
+<div class="card reassure">
+Routines break for everyone — sickness, travel, hard weeks. You haven't failed. You just need one small step back in. 💛
+</div>
+
+<div class="card">
+<div style="font-weight:800;margin-bottom:10px">What's feeling out of control?</div>
+<div class="areas" id="areas"></div>
+</div>
+
+<div id="result"></div>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const AREAS=[
+ {k:'home',e:'🏠',t:'The house is a mess',steps:['Pick ONE room. Set a 10-minute timer. Just that room.','Clear only the kitchen sink and one counter. Stop there.','Do one single load of laundry, start to finish.','Walk through with a basket and collect 10 out-of-place things.']},
+ {k:'meals',e:'🍽️',t:'No idea what to feed everyone',steps:['Tonight is "breakfast for dinner." Done. No guilt.','Make the easiest thing you know by heart. That\'s the plan.','Order or assemble something simple. Feeding them counts.','Pick just THREE dinners for the week — that\'s enough to restart.']},
+ {k:'sleep',e:'😴',t:'Bedtimes have gone sideways',steps:['Tonight, just do the LAST step of the routine (lights low, one book).','Pick a "good enough" bedtime and aim only for that, starting tonight.','Reset one kid\'s routine first. The others can follow tomorrow.','Skip the extras. Pajamas, teeth, bed. That\'s the whole routine tonight.']},
+ {k:'mornings',e:'🌅',t:'Mornings are chaos',steps:['Tonight, set out ONE thing for tomorrow (clothes or bags).','Tomorrow, wake 10 minutes earlier. Just 10.','Make a 3-step "must do" list for the morning. Ignore the rest.','Prep breakfast tonight so morning-you has one less thing.']},
+ {k:'me',e:'💛',t:'I\'ve let myself slide',steps:['Drink one glass of water right now. That\'s the restart.','Do one tiny thing you used to do for you — even 5 minutes.','Go to bed 15 minutes earlier tonight. Rest is the foundation.','Step outside for 2 minutes of fresh air. Begin there.']}
+];
+function render(){
+ const a=document.getElementById('areas');a.innerHTML='';
+ AREAS.forEach(area=>{
+  const b=document.createElement('button');b.className='area';b.innerHTML='<span class="e">'+area.e+'</span><span class="t">'+area.t+'</span>';
+  b.onclick=()=>{const step=area.steps[Math.floor(Math.random()*area.steps.length)];document.getElementById('result').innerHTML='<div class="card step"><div class="lbl">Your one rescue step</div><div class="one">'+step+'</div><div style="color:#666;font-weight:700">That\'s all for now. One step is a restart. 💛</div></div>';window.scrollTo({top:document.getElementById('result').offsetTop-20,behavior:'smooth'})};
+  a.appendChild(b);
+ });
+}
+render();
+</script>
+</body>
+</html>

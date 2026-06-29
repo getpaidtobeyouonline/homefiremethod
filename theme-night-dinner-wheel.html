@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Theme-Night Dinner Wheel · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+h2{font-size:1.1rem;margin:4px 0 10px}
+.wheelbox{text-align:center;padding:10px}
+.wheel{font-size:2rem;font-weight:800;color:var(--pink);min-height:60px;display:flex;align-items:center;justify-content:center;transition:opacity .1s}
+.wheel .emoji{font-size:2.4rem}
+.spinning{opacity:.4}
+.day{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f3f3f3}
+.day:last-child{border-bottom:none}
+.day .dn{font-weight:800;color:var(--teal);width:50px}
+.day .th{flex:1;font-weight:700}
+.day button{background:#f4f4f4;color:#555;font-size:.78rem;padding:8px 10px;min-height:40px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Theme-Night Dinner Wheel</h1>
+<p class="tagline">Can't decide? Spin for a fun dinner theme — Taco Tuesday energy, any night.</p>
+</header>
+<p class="howto">How to use this: tap spin for tonight's theme, or set a theme for each day of the week.</p>
+
+<div class="card tint-pink wheelbox">
+<div class="wheel" id="wheel">Tap spin!</div>
+<button class="btn-primary" id="spin" style="margin-top:10px">🎡 Spin the wheel</button>
+</div>
+
+<div class="card">
+<h2>Or set your weekly themes</h2>
+<div id="week"></div>
+</div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Reset / Start over</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-theme-wheel';
+const THEMES=[
+ {e:'🌮',n:'Taco Night'},{e:'🍝',n:'Pasta Night'},{e:'🍳',n:'Breakfast for Dinner'},
+ {e:'🍕',n:'Homemade Pizza'},{e:'🥡',n:'Stir-Fry Night'},{e:'🥪',n:'Sandwich & Soup'},
+ {e:'🍔',n:'Burger Night'},{e:'🥔',n:'Baked Potato Bar'},{e:'🌯',n:'Burrito Bowls'},
+ {e:'🍗',n:'Sheet-Pan Dinner'},{e:'🥗',n:'Big Salad Night'},{e:'🍲',n:'Soup & Bread'},
+ {e:'🐟',n:'Fish Friday'},{e:'🍛',n:'Rice Bowl Night'},{e:'🥞',n:'Brinner Buffet'}
+];
+const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{week:DAYS.map(()=>null)}}catch(e){return {week:DAYS.map(()=>null)}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+
+const wheel=document.getElementById('wheel');
+document.getElementById('spin').onclick=()=>{
+ wheel.classList.add('spinning');let n=0;
+ const iv=setInterval(()=>{const t=THEMES[Math.floor(Math.random()*THEMES.length)];wheel.innerHTML='<span class="emoji">'+t.e+'</span> '+t.n;n++;if(n>12){clearInterval(iv);wheel.classList.remove('spinning')}},80);
+};
+function render(){
+ const w=document.getElementById('week');w.innerHTML='';
+ DAYS.forEach((d,i)=>{
+  const row=document.createElement('div');row.className='day';
+  const t=state.week[i];
+  row.innerHTML='<span class="dn">'+d+'</span><span class="th">'+(t?t.e+' '+t.n:'<span style="color:#bbb;font-weight:600">— tap to pick —</span>')+'</span><button>'+(t?'Change':'Pick')+'</button>';
+  row.querySelector('button').onclick=()=>{
+   const cur=t?THEMES.findIndex(x=>x.n===t.n):-1;
+   state.week[i]=THEMES[(cur+1)%THEMES.length];save();render();
+  };
+  w.appendChild(row);
+ });
+}
+document.getElementById('reset').onclick=()=>{if(confirm('Clear your weekly themes?')){localStorage.removeItem(KEY);state={week:DAYS.map(()=>null)};wheel.textContent='Tap spin!';render()}};
+render();
+</script>
+</body>
+</html>

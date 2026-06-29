@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Side Hustle Starter Quiz · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+.q{font-size:1.2rem;font-weight:800;margin-bottom:14px}
+.opt{display:block;width:100%;text-align:left;background:#f7f7f7;color:#333;margin-bottom:10px;border:2px solid transparent}
+.opt:active{transform:scale(.99)}
+.prog{color:var(--teal);font-weight:800;margin-bottom:8px}
+.result{background:var(--pink-tint);border-radius:16px;padding:22px;text-align:center}
+.result .e{font-size:2.6rem}
+.result .t{font-size:1.4rem;font-weight:800;color:var(--pink);margin:6px 0}
+.result .d{font-weight:600;color:#555;margin-bottom:8px}
+.result .why{background:#fff;border-radius:12px;padding:12px;color:var(--teal);font-weight:700;font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Side Hustle Starter Quiz</h1>
+<p class="tagline">Five quick questions to match you with a hustle that fits your real life.</p>
+</header>
+<p class="howto">How to use this: answer honestly — there are no wrong answers. We'll suggest a starting point.</p>
+
+<div id="quiz"></div>
+
+<button class="btn-ghost" id="reset" style="width:100%;display:none">Take it again</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-hustle-quiz';
+const QS=[
+ {q:'How much time do you realistically have each week?',opts:[['A couple hours, tops','flex'],['Some evenings after bedtime','content'],['Pockets here and there','flex'],['I can carve out a regular slot','service']]},
+ {q:'Which sounds most like you?',opts:[['I love making things','craft'],['I\'m organized & good with words','content'],['I\'m great with people','service'],['I just want simple & flexible','flex']]},
+ {q:'How do you feel about being on camera or posting online?',opts:[['Happy to share & post','content'],['I\'d rather not','craft'],['Don\'t mind a little','service'],['Prefer behind the scenes','flex']]},
+ {q:'What\'s your startup budget?',opts:[['Basically zero','flex'],['A little for supplies','craft'],['I can invest a bit','content'],['Whatever a service needs','service']]},
+ {q:'What would feel like a win?',opts:[['Quick, steady cash','flex'],['Selling something I made','craft'],['Building something of my own','content'],['Helping people directly','service']]}
+];
+const RESULTS={
+ flex:['💪','Flexible gig work','Try task-based apps, surveys, mystery shopping, or reselling clutter. Low commitment, fits any schedule.','Perfect because you want simple and flexible with little startup cost.'],
+ craft:['🎨','Handmade & crafts','Sell crafts, baked goods, or printables on a marketplace. Start with what you already love making.','Great fit — you love making things and can start small.'],
+ content:['✍️','Content & digital','Try blogging, social content, virtual assisting, or selling digital downloads. Words and consistency are your superpower.','Matches your comfort with posting and your organized, wordy strengths.'],
+ service:['🤝','Local services','Babysitting, pet-sitting, cleaning, tutoring, or organizing for others. People trust you, and that\'s the whole business.','You\'re wonderful with people and want to help directly.']
+};
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{i:0,scores:{}}}catch(e){return {i:0,scores:{}}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+
+function render(){
+ const quiz=document.getElementById('quiz');
+ const reset=document.getElementById('reset');
+ if(state.i>=QS.length){
+  let best=null,bestN=-1;
+  for(const k in state.scores){if(state.scores[k]>bestN){bestN=state.scores[k];best=k}}
+  best=best||'flex';
+  const r=RESULTS[best];
+  quiz.innerHTML='<div class="card result"><div class="e">'+r[0]+'</div><div class="prog" style="color:#a23b73">Your match</div><div class="t">'+r[1]+'</div><div class="d">'+r[2]+'</div><div class="why">💛 '+r[3]+'</div></div>'
+   +'<p style="text-align:center;color:#999;font-size:.9rem">This is a gentle nudge, not a rule. Trust your gut too.</p>';
+  reset.style.display='block';
+  return;
+ }
+ reset.style.display='none';
+ const Q=QS[state.i];
+ const c=document.createElement('div');c.className='card';
+ c.innerHTML='<div class="prog">Question '+(state.i+1)+' of '+QS.length+'</div><div class="q">'+Q.q+'</div>';
+ Q.opts.forEach(o=>{
+  const b=document.createElement('button');b.className='opt';b.textContent=o[0];
+  b.onclick=()=>{state.scores[o[1]]=(state.scores[o[1]]||0)+1;state.i++;save();render()};
+  c.appendChild(b);
+ });
+ quiz.innerHTML='';quiz.appendChild(c);
+}
+document.getElementById('reset').onclick=()=>{localStorage.removeItem(KEY);state={i:0,scores:{}};render()};
+render();
+</script>
+</body>
+</html>

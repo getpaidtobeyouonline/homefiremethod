@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>School Lunch Rotation · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+h2{font-size:1.1rem;margin:4px 0 10px}
+.day{border:2px solid #f0f0f0;border-radius:12px;padding:12px;margin-bottom:10px}
+.day .dn{font-weight:800;color:var(--pink);margin-bottom:4px}
+.day .lunch{font-size:1.1rem;font-weight:700}
+.day button{background:#f4f4f4;color:#555;font-size:.78rem;padding:8px 10px;min-height:40px;margin-top:8px}
+.pool{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pool .chip{background:var(--teal-tint);color:var(--teal);border-radius:999px;padding:6px 10px;font-weight:700;font-size:.82rem;display:flex;gap:6px;align-items:center}
+.pool .chip button{background:none;color:var(--teal);padding:0;min-height:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>School Lunch Rotation</h1>
+<p class="tagline">A no-repeat week of lunches your kids will actually eat — packed without the panic.</p>
+</header>
+<p class="howto">How to use this: build your list of kid-approved lunches, then tap "Plan my week" for five no-repeats.</p>
+
+<div class="card tint-teal">
+<label for="add">Lunches your kids like</label>
+<div class="row">
+<input id="add" placeholder="e.g. Turkey roll-ups" autocomplete="off" style="flex:1;min-width:140px">
+<button class="btn-secondary" id="addBtn">Add</button>
+</div>
+<div class="pool" id="pool"></div>
+</div>
+
+<button class="btn-primary" id="plan" style="width:100%;margin-bottom:14px">🥪 Plan my week</button>
+
+<div id="week"></div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Reset / Start over</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-lunch-rotation';
+const SEED=['Turkey & cheese roll-ups','PB&J + apple slices','Pasta salad cup','Cheese quesadilla','Crackers, cheese & ham','Bagel with cream cheese','Yogurt, granola & berries','Chicken nuggets in a thermos','Hummus & pita with veg','Mini bagel pizzas'];
+const DAYS=['Mon','Tue','Wed','Thu','Fri'];
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{pool:SEED.slice(),week:null}}catch(e){return {pool:SEED.slice(),week:null}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+
+document.getElementById('addBtn').onclick=()=>{const el=document.getElementById('add');const v=el.value.trim();if(v&&!state.pool.includes(v)){state.pool.push(v);el.value='';save();render()}};
+document.getElementById('add').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('addBtn').click()});
+
+document.getElementById('plan').onclick=()=>{
+ if(state.pool.length<1){alert('Add a few lunches first 💛');return}
+ const shuffled=state.pool.slice().sort(()=>Math.random()-0.5);
+ state.week=DAYS.map((d,i)=>shuffled[i%shuffled.length]);
+ save();render();
+};
+function render(){
+ const pool=document.getElementById('pool');pool.innerHTML='';
+ state.pool.forEach(p=>{const c=document.createElement('span');c.className='chip';c.innerHTML='<span></span><button>✕</button>';c.querySelector('span').textContent=p;c.querySelector('button').onclick=()=>{state.pool=state.pool.filter(x=>x!==p);save();render()};pool.appendChild(c)});
+ const w=document.getElementById('week');w.innerHTML='';
+ if(!state.week){w.innerHTML='<div class="card"><div class="empty">No week planned yet — and that\'s perfectly okay. Tap "Plan my week" above.</div></div>';return}
+ DAYS.forEach((d,i)=>{
+  const card=document.createElement('div');card.className='card day';
+  card.innerHTML='<div class="dn">'+d+'</div><div class="lunch"></div><button>Swap</button>';
+  card.querySelector('.lunch').textContent=state.week[i];
+  card.querySelector('button').onclick=()=>{const others=state.pool.filter(p=>p!==state.week[i]);if(!others.length)return;state.week[i]=others[Math.floor(Math.random()*others.length)];save();render()};
+  w.appendChild(card);
+ });
+}
+document.getElementById('reset').onclick=()=>{if(confirm('Reset to the starter lunch list?')){localStorage.removeItem(KEY);state={pool:SEED.slice(),week:null};save();render()}};
+render();
+</script>
+</body>
+</html>

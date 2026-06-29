@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Idea Generator · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+h2{font-size:1.05rem;margin:4px 0 10px}
+.idea{background:var(--pink-tint);border-radius:14px;padding:18px;text-align:center;font-size:1.15rem;font-weight:800;color:var(--pink);min-height:90px;display:flex;align-items:center;justify-content:center}
+.saved{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f3f3f3}
+.saved:last-child{border-bottom:none}
+.saved span{flex:1;font-weight:700}
+.del{background:none;color:var(--muted);font-size:.85rem;padding:4px;min-height:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Content Idea Generator</h1>
+<p class="tagline">Never stare at a blank post again — fresh ideas for a mom selling online.</p>
+</header>
+<p class="howto">How to use this: pop in what you sell, tap for an idea, and save the ones you love for later.</p>
+
+<div class="card tint-teal">
+<label for="topic">What do you sell or share? (optional)</label>
+<input id="topic" placeholder="e.g. handmade candles" autocomplete="off">
+</div>
+
+<button class="btn-primary" id="go" style="width:100%;margin-bottom:14px">💡 Give me an idea</button>
+
+<div class="card idea" id="idea">Tap the button for your first post idea ✨</div>
+<div style="text-align:center;margin-bottom:14px"><button class="btn-secondary" id="save">⭐ Save this idea</button></div>
+
+<div class="card">
+<h2>Saved ideas</h2>
+<div id="list"></div>
+</div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Clear saved ideas</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-content-ideas';
+const TEMPLATES=[
+ 'Show a "behind the scenes" of making {t}',
+ 'Share the story of why you started selling {t}',
+ 'A quick before-and-after featuring {t}',
+ 'Answer the #1 question people ask about {t}',
+ 'Bust a common myth about {t}',
+ '3 ways to use / enjoy {t}',
+ 'A day-in-the-life as a mom running your {t} business',
+ 'Show your messy-but-real workspace',
+ 'Introduce yourself — people buy from people',
+ 'A customer review or kind message you received',
+ 'A "this or that" poll about {t}',
+ 'Your top tip related to {t}',
+ 'A time-lapse of you packing an order',
+ 'What you wish you knew before starting {t}',
+ 'Celebrate a small win out loud',
+ 'A relatable mom-life moment + how {t} fits in',
+ 'Offer a limited-time treat for your followers',
+ 'Ask your audience what they want to see next',
+ 'Share your favourite tool or supply for {t}',
+ 'A gentle reminder of what makes your {t} special'
+];
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{topic:'',saved:[]}}catch(e){return {topic:'',saved:[]}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+const topic=document.getElementById('topic');topic.value=state.topic||'';
+topic.oninput=()=>{state.topic=topic.value;save()};
+let current='';let last=-1;
+document.getElementById('go').onclick=()=>{
+ let i;do{i=Math.floor(Math.random()*TEMPLATES.length)}while(i===last);last=i;
+ const t=(state.topic||'your product').trim()||'your product';
+ current=TEMPLATES[i].replace(/\{t\}/g,t);
+ document.getElementById('idea').textContent=current;
+};
+document.getElementById('save').onclick=()=>{if(current&&!state.saved.includes(current)){state.saved.unshift(current);save();render()}};
+function render(){
+ const list=document.getElementById('list');list.innerHTML='';
+ if(!state.saved.length){list.innerHTML='<div class="empty">No saved ideas yet — and that\'s perfectly okay. Save your favourites as you go.</div>';return}
+ state.saved.forEach((idea,i)=>{const r=document.createElement('div');r.className='saved';r.innerHTML='<span></span><button class="del">✕</button>';r.querySelector('span').textContent=idea;r.querySelector('.del').onclick=()=>{state.saved.splice(i,1);save();render()};list.appendChild(r)});
+}
+document.getElementById('reset').onclick=()=>{if(confirm('Clear all saved ideas?')){state.saved=[];save();render()}};
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Movie Night Picker · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+h2{font-size:1.05rem;margin:4px 0 10px}
+.result{background:var(--pink-tint);border-radius:16px;padding:22px;text-align:center}
+.result .label{color:#a23b73;font-weight:700;font-size:.85rem}
+.result .movie{font-size:1.5rem;font-weight:800;color:var(--pink);margin:4px 0 12px}
+.result .snack{background:#fff;border-radius:12px;padding:12px;font-weight:700;color:var(--teal)}
+.chip{display:inline-flex;align-items:center;gap:6px;background:#f4f4f4;border-radius:999px;padding:6px 12px;margin:3px;font-weight:700;font-size:.85rem}
+.chip button{background:none;color:#999;padding:0;min-height:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Movie Night Picker</h1>
+<p class="tagline">Spin up a kid-friendly movie plus the perfect snack pairing. Decision made!</p>
+</header>
+<p class="howto">How to use this: add the movies you own or can stream, then tap to pick tonight's film + snack.</p>
+
+<button class="btn-primary" id="pick" style="width:100%;margin-bottom:14px">🍿 Pick tonight's movie</button>
+
+<div id="result"></div>
+
+<div class="card">
+<h2>Your movie list</h2>
+<div class="row" style="margin-bottom:10px">
+<input id="add" placeholder="Add a movie you have" autocomplete="off" style="flex:1;min-width:140px">
+<button class="btn-ghost" id="addBtn">Add</button>
+</div>
+<div id="list"></div>
+</div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Reset list</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-movie-night';
+const SNACKS=['Popcorn with a sprinkle of cinnamon','Apple slices & peanut butter','Homemade nachos','Popcorn + a bowl of berries','Pretzels & cheese cubes','"Movie candy" — a few of whatever\'s in the cupboard','Banana "ice cream"','Toast cut into fun shapes','Crackers & hummus','Hot cocoa & marshmallows'];
+const SAMPLE=['Toy Story','Moana','The Lion King','Paddington','Frozen','Finding Nemo','Encanto','Despicable Me','Kung Fu Panda','Ratatouille'];
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||SAMPLE.slice()}catch(e){return SAMPLE.slice()}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+
+document.getElementById('pick').onclick=()=>{
+ if(!state.length){document.getElementById('result').innerHTML='<div class="card"><div class="empty">Add a few movies first and I\'ll pick one. 💛</div></div>';return}
+ const movie=state[Math.floor(Math.random()*state.length)];
+ const snack=SNACKS[Math.floor(Math.random()*SNACKS.length)];
+ document.getElementById('result').innerHTML='<div class="card result"><div class="label">Tonight\'s feature</div><div class="movie">'+esc(movie)+'</div><div class="snack">🍿 Snack pairing: '+snack+'</div></div>';
+};
+document.getElementById('addBtn').onclick=()=>{const el=document.getElementById('add');const v=el.value.trim();if(v){state.push(v);el.value='';save();render()}};
+document.getElementById('add').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('addBtn').click()});
+function render(){
+ const list=document.getElementById('list');list.innerHTML='';
+ if(!state.length){list.innerHTML='<div class="empty">No movies yet — add a few your family loves.</div>';return}
+ state.forEach((m,i)=>{const c=document.createElement('span');c.className='chip';c.innerHTML='<span></span><button>✕</button>';c.querySelector('span').textContent=m;c.querySelector('button').onclick=()=>{state.splice(i,1);save();render()};list.appendChild(c)});
+}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+document.getElementById('reset').onclick=()=>{if(confirm('Reset to the sample movie list?')){localStorage.removeItem(KEY);state=SAMPLE.slice();document.getElementById('result').innerHTML='';render()}};
+render();
+</script>
+</body>
+</html>

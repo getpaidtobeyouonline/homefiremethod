@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kids' Boredom Buster · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+.big{background:var(--pink-tint);border-radius:16px;padding:30px 18px;text-align:center;min-height:160px;display:flex;flex-direction:column;justify-content:center}
+.big .e{font-size:3rem}
+.big .t{font-size:1.5rem;font-weight:800;color:var(--pink);margin:8px 0 4px}
+.big .d{font-weight:600;color:#555}
+.note{text-align:center;color:#1EA5B4;font-weight:700;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Kids' Boredom Buster</h1>
+<p class="tagline">"I'm booored!" — tap once for a solo activity, and buy yourself a breather.</p>
+</header>
+<p class="howto">How to use this: hand them the phone (or read it out) and tap for a solo thing they can do on their own.</p>
+
+<div class="card big" id="big">
+<div class="e">🎈</div><div class="t">Ready to bust some boredom?</div><div class="d">Tap the big button below.</div>
+</div>
+
+<button class="btn-primary" id="go" style="width:100%;font-size:1.15rem;padding:16px;margin-bottom:8px">✨ Bust the boredom!</button>
+<div class="note">These are solo-friendly — perfect for a few quiet minutes for you. 💛</div>
+
+<button class="btn-ghost" id="reset" style="width:100%;margin-top:14px">Reset</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const ACT=[
+ ['🏗️','Build the tallest tower','Use blocks, cups, or boxes. How high can it go before it topples?'],
+ ['🎨','Draw your dream treehouse','Every detail — slides, secret rooms, the works.'],
+ ['🔍','Be a house detective','Find 10 things that are blue. Then 10 that are round.'],
+ ['📚','Read to a stuffed animal','Pick a book and read it out loud to your favourite toy.'],
+ ['🦸','Invent a superhero','Draw them and write their secret power.'],
+ ['🧩','Finish a puzzle','Pick one and see it all the way through.'],
+ ['✂️','Make a paper chain','Cut strips, loop, and tape. How long can you make it?'],
+ ['💃','Learn a new dance move','Practice it 10 times, then show someone.'],
+ ['🏰','Build a fort','Pillows and blankets. Make it cosy inside.'],
+ ['📝','Write a tiny story','Just 5 sentences about anything you like.'],
+ ['🎵','Make up a song','About your pet, your snack, or a silly day.'],
+ ['🧸','Set up a toy "school"','Line up your toys and be the teacher.'],
+ ['🌈','Sort by colour','Gather small toys and make a rainbow on the floor.'],
+ ['🪁','Design a paper airplane','Fold it, test it, then make it fly even further.'],
+ ['🎭','Put on a puppet show','Use socks or toys. Practice, then perform.'],
+ ['🔢','Count to 100','While hopping, then while whispering. Can you do it twice?']
+];
+let last=-1;
+document.getElementById('go').onclick=()=>{
+ let i;do{i=Math.floor(Math.random()*ACT.length)}while(i===last);last=i;
+ const a=ACT[i];
+ document.getElementById('big').innerHTML='<div class="e">'+a[0]+'</div><div class="t">'+a[1]+'</div><div class="d">'+a[2]+'</div>';
+};
+document.getElementById('reset').onclick=()=>{document.getElementById('big').innerHTML='<div class="e">🎈</div><div class="t">Ready to bust some boredom?</div><div class="d">Tap the big button below.</div>';last=-1};
+</script>
+</body>
+</html>

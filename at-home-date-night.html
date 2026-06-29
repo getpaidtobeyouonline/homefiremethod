@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>At-Home Date Night · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+.date{background:var(--pink-tint);border-radius:16px;padding:22px 18px;text-align:center}
+.date .e{font-size:2.6rem}
+.date .t{font-size:1.4rem;font-weight:800;color:var(--pink);margin:6px 0}
+.date .d{font-weight:600;color:#555;margin-bottom:10px}
+.date .extra{background:#fff;border-radius:12px;padding:10px;font-weight:700;color:var(--teal);font-size:.9rem}
+.budget{text-align:center;color:#1EA5B4;font-weight:700;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>At-Home Date Night</h1>
+<p class="tagline">Once the kids are down, reconnect — a whole date for under $10.</p>
+</header>
+<p class="howto">How to use this: tap for a date idea and a little add-on. No sitter, no fancy budget, just you two.</p>
+
+<button class="btn-primary" id="go" style="width:100%;margin-bottom:14px">💕 Plan our date night</button>
+
+<div class="card date" id="date">
+<div class="e">🌙</div><div class="t">Ready for a cosy night in?</div><div class="d">Tap above and we'll plan it.</div>
+</div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Reset</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const DATES=[
+ ['🍿','Backyard or living-room movie','Pick a film you both love, dim the lights, share a blanket.'],
+ ['🍳','Cook something new together','Try one new simple recipe as a team. Music on, phones away.'],
+ ['🎲','Game night for two','Cards, a board game, or trivia. Loser does the dishes!'],
+ ['🌟','Stargazing picnic','Blanket outside (or by a window), snacks, and good conversation.'],
+ ['🧁','Dessert taste-test','Grab two cheap treats and rate them like food critics.'],
+ ['📺','Re-watch your "first" show or movie','The one from when you started dating. Reminisce.'],
+ ['☕','Coffee-shop at home','Make fancy drinks, light a candle, and just talk — no agenda.'],
+ ['🎨','Paint or draw each other','Terrible art = big laughs. Keep the masterpieces.'],
+ ['🧩','Puzzle & playlist night','Build a puzzle while a favourite playlist plays low.'],
+ ['💌','Memory lane','Look back through old photos and tell the stories again.'],
+ ['🍕','Build-your-own pizza night','Cheap dough, split toppings, compete for the best slice.'],
+ ['🌹','Living-room "fancy dinner"','Set the table nicely, even for grilled cheese. Candle optional.']
+];
+const EXTRAS=['Add a $5 bottle of something nice 🍷','Make popcorn or a shared snack 🍿','Put phones in another room 📴','Light a candle for ambiance 🕯️','Make a quick cosy playlist 🎶','Pull out the good blanket 🛋️'];
+let last=-1;
+document.getElementById('go').onclick=()=>{
+ let i;do{i=Math.floor(Math.random()*DATES.length)}while(i===last);last=i;
+ const d=DATES[i];const x=EXTRAS[Math.floor(Math.random()*EXTRAS.length)];
+ document.getElementById('date').innerHTML='<div class="e">'+d[0]+'</div><div class="t">'+d[1]+'</div><div class="d">'+d[2]+'</div><div class="extra">✨ Little extra: '+x+'</div><div class="budget">All in for under $10 — connection doesn\'t cost much. 💛</div>';
+};
+document.getElementById('reset').onclick=()=>{document.getElementById('date').innerHTML='<div class="e">🌙</div><div class="t">Ready for a cosy night in?</div><div class="d">Tap above and we\'ll plan it.</div>';last=-1};
+</script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Worth-It Calculator · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+h2{font-size:1.1rem;margin:4px 0 10px}
+.qline{margin:14px 0}
+.qtext{font-weight:700;margin-bottom:8px}
+.scale{display:flex;gap:6px}
+.scale button{flex:1;background:#f4f4f4;color:#888;min-height:46px;font-size:1.1rem}
+.scale button.on{background:var(--teal);color:#fff}
+.verdict{text-align:center;padding:18px;border-radius:14px;margin-top:8px}
+.verdict.go{background:var(--teal-tint)}
+.verdict.wait{background:var(--pink-tint)}
+.verdict .big{font-size:1.4rem;font-weight:800;margin-bottom:4px}
+.verdict.go .big{color:var(--teal)}
+.verdict.wait .big{color:var(--pink)}
+.cost{text-align:center;color:#666;font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Worth-It Calculator</h1>
+<p class="tagline">A 30-second gut-check before you buy — no judgment, just clarity.</p>
+</header>
+<p class="howto">How to use this: pop in the item, answer four quick questions, and let the calm verdict help.</p>
+
+<div class="card tint-teal">
+<label for="item">What are you thinking of buying?</label>
+<input id="item" placeholder="e.g. New blender" autocomplete="off">
+<label for="price" style="margin-top:10px">How much is it?</label>
+<input id="price" type="number" inputmode="decimal" min="0" placeholder="$0.00">
+</div>
+
+<div class="card">
+<div id="questions"></div>
+<div class="cost" id="cost"></div>
+</div>
+
+<div id="verdict"></div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Reset / Start over</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-worth-it';
+const Q=[
+ {k:'use',t:'How often will you really use it?',low:'Rarely',high:'Daily'},
+ {k:'joy',t:'How much will it genuinely help or bring joy?',low:'Meh',high:'A lot'},
+ {k:'afford',t:'How comfortably does it fit your budget right now?',low:'A stretch',high:'Easily'},
+ {k:'wait',t:'How sure are you after sleeping on it? (still want it = high)',low:'Impulse',high:'Sure'}
+];
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{item:'',price:'',ans:{}}}catch(e){return {item:'',price:'',ans:{}}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+
+const item=document.getElementById('item'),price=document.getElementById('price');
+item.value=state.item||'';price.value=state.price||'';
+item.oninput=()=>{state.item=item.value;save();render()};
+price.oninput=()=>{state.price=price.value;save();render()};
+
+function render(){
+ const q=document.getElementById('questions');q.innerHTML='';
+ Q.forEach(question=>{
+  const d=document.createElement('div');d.className='qline';
+  d.innerHTML='<div class="qtext"></div><div class="row" style="justify-content:space-between"><small style="color:#999">'+question.low+'</small><small style="color:#999">'+question.high+'</small></div><div class="scale"></div>';
+  d.querySelector('.qtext').textContent=question.t;
+  const sc=d.querySelector('.scale');
+  for(let i=1;i<=5;i++){
+   const b=document.createElement('button');b.textContent=i;
+   if(state.ans[question.k]===i)b.classList.add('on');
+   b.onclick=()=>{state.ans[question.k]=i;save();render()};sc.appendChild(b);
+  }
+  q.appendChild(d);
+ });
+ const p=parseFloat(state.price);
+ document.getElementById('cost').textContent = p>0 ? ('That\'s about '+Math.round(p/15)+'×15-minute pockets of your time. Just a gentle frame — not a rule.') : '';
+ const answered=Q.every(x=>state.ans[x.k]);
+ const v=document.getElementById('verdict');
+ if(!answered){v.innerHTML='';return}
+ const score=Q.reduce((a,x)=>a+state.ans[x.k],0);
+ if(score>=15){
+  v.innerHTML='<div class="card verdict go"><div class="big">Sounds worth it 💛</div><div>This looks like a yes that fits your life and budget. Enjoy it without guilt.</div></div>';
+ }else if(score>=11){
+  v.innerHTML='<div class="card verdict go"><div class="big">Probably okay — your call</div><div>It\'s a reasonable buy. If it still feels right tomorrow, go for it.</div></div>';
+ }else{
+  v.innerHTML='<div class="card verdict wait"><div class="big">Maybe give it a week</div><div>No shame either way — but a short pause might save this money for something you\'ll love more.</div></div>';
+ }
+}
+document.getElementById('reset').onclick=()=>{if(confirm('Clear and start over?')){localStorage.removeItem(KEY);state={item:'',price:'',ans:{}};item.value='';price.value='';render()}};
+render();
+</script>
+</body>
+</html>

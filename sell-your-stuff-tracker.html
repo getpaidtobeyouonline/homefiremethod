@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sell-Your-Stuff Tracker · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+h2{font-size:1.05rem;margin:4px 0 10px}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center}
+.stats .b{padding:12px 6px;border-radius:12px;background:#f6f6f6}
+.stats .b b{display:block;font-size:1.3rem}
+.stats .b.earned{background:var(--teal-tint)}.stats .b.earned b{color:var(--teal)}
+.stats .b small{color:#666;font-weight:700;font-size:.72rem}
+.item{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f3f3f3}
+.item:last-child{border-bottom:none}
+.item .mid{flex:1}
+.item .nm{font-weight:700}
+.item .price{font-size:.82rem;color:#888}
+.status{font-size:.72rem;font-weight:800;padding:4px 10px;border-radius:999px;cursor:pointer;border:none}
+.status.listed{background:#fff4e0;color:#d6890b}
+.status.sold{background:var(--teal-tint);color:var(--teal)}
+.del{background:none;color:var(--muted);font-size:.78rem;padding:4px;min-height:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Sell-Your-Stuff Tracker</h1>
+<p class="tagline">Declutter and cash in — track what's listed, what's sold, and what you've earned.</p>
+</header>
+<p class="howto">How to use this: add each item with a price. Tap its status to move it from listed to sold.</p>
+
+<div class="card">
+<div class="stats">
+<div class="b"><b id="cListed">0</b><small>Listed</small></div>
+<div class="b"><b id="cSold">0</b><small>Sold</small></div>
+<div class="b earned"><b id="earned">$0</b><small>Earned</small></div>
+</div>
+</div>
+
+<div class="card tint-teal">
+<label for="nm">Add an item</label>
+<div class="row">
+<input id="nm" placeholder="e.g. Kids' bike" autocomplete="off" style="flex:2;min-width:130px">
+<input id="price" type="number" inputmode="decimal" min="0" placeholder="$" style="flex:1;min-width:80px">
+<button class="btn-secondary" id="add">Add</button>
+</div>
+</div>
+
+<div class="card">
+<h2>Your items</h2>
+<div id="list"></div>
+</div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Reset / Start over</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-sell-stuff';
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return []}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function money(n){return '$'+(n||0).toFixed(2)}
+
+document.getElementById('add').onclick=()=>{
+ const n=document.getElementById('nm'),p=document.getElementById('price');
+ const nm=n.value.trim();if(!nm){n.focus();return}
+ state.unshift({id:Date.now(),nm,price:parseFloat(p.value)||0,status:'listed'});
+ n.value='';p.value='';save();render();
+};
+document.getElementById('nm').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('add').click()});
+function render(){
+ const listed=state.filter(i=>i.status==='listed').length;
+ const sold=state.filter(i=>i.status==='sold');
+ document.getElementById('cListed').textContent=listed;
+ document.getElementById('cSold').textContent=sold.length;
+ document.getElementById('earned').textContent=money(sold.reduce((a,i)=>a+i.price,0));
+ const list=document.getElementById('list');list.innerHTML='';
+ if(!state.length){list.innerHTML='<div class="empty">Nothing listed yet — and that\'s perfectly okay. Add your first item when you\'re ready.</div>';return}
+ state.forEach(it=>{
+  const r=document.createElement('div');r.className='item';
+  r.innerHTML='<div class="mid"><div class="nm"></div><div class="price">'+money(it.price)+'</div></div>'
+   +'<button class="status '+it.status+'">'+(it.status==='sold'?'✓ Sold':'Listed')+'</button><button class="del">✕</button>';
+  r.querySelector('.nm').textContent=it.nm;
+  r.querySelector('.status').onclick=()=>{it.status=it.status==='listed'?'sold':'listed';save();render()};
+  r.querySelector('.del').onclick=()=>{state=state.filter(x=>x.id!==it.id);save();render()};
+  list.appendChild(r);
+ });
+}
+document.getElementById('reset').onclick=()=>{if(confirm('Clear all items?')){localStorage.removeItem(KEY);state=[];render()}};
+render();
+</script>
+</body>
+</html>

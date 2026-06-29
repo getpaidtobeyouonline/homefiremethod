@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Energy Check-In · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+.levels{display:flex;flex-direction:column;gap:10px}
+.level{display:flex;align-items:center;gap:14px;padding:16px;border-radius:14px;background:#f7f7f7;border:2px solid transparent;cursor:pointer;text-align:left;width:100%}
+.level .e{font-size:2rem}
+.level .t{font-weight:800;font-size:1.1rem}
+.level .d{font-size:.85rem;color:#666}
+.level.on{border-color:var(--pink);background:var(--pink-tint)}
+.result{background:var(--teal-tint);border-radius:16px;padding:20px;text-align:center;margin-top:14px}
+.result .lbl{color:var(--teal);font-weight:700;font-size:.85rem}
+.result .step{font-size:1.25rem;font-weight:800;color:var(--teal);margin:6px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Energy Check-In</h1>
+<p class="tagline">How are you really doing right now? Be honest — and get a next step that fits.</p>
+</header>
+<p class="howto">How to use this: tap the energy level that's true for you, and we'll suggest a kind, matching next step.</p>
+
+<div class="card">
+<div class="levels" id="levels"></div>
+</div>
+
+<div id="result"></div>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-energy';
+const LEVELS=[
+ {k:5,e:'🌟',t:'Full tank','d':'Feeling good and capable'},
+ {k:4,e:'🙂','t':'Doing okay','d':'Steady, getting by fine'},
+ {k:3,e:'😐','t':'Meh','d':'A bit flat or tired'},
+ {k:2,e:'😮‍💨','t':'Running low','d':'Worn down, pushing through'},
+ {k:1,e:'🪫','t':'Empty','d':'Completely depleted'}
+];
+const STEPS={
+ 5:['You\'ve got energy — ride the wave! Tackle one thing you\'ve been putting off, then enjoy the win.'],
+ 4:['Nice and steady. Pick one small task and one small joy. Balance keeps the tank topped up.'],
+ 3:['Flat is okay. Do ONE tiny thing (make the bed, drink water), then give yourself a real break.'],
+ 2:['You\'re running on fumes. Lower the bar — order in, leave the dishes, sit down for 10 minutes. Survival mode is allowed.'],
+ 1:['Empty means stop. The only task right now is rest. Everything else can wait. Please be gentle with yourself. 💛']
+};
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{level:null}}catch(e){return {level:null}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function render(){
+ const wrap=document.getElementById('levels');wrap.innerHTML='';
+ LEVELS.forEach(l=>{
+  const b=document.createElement('button');b.className='level'+(state.level===l.k?' on':'');
+  b.innerHTML='<span class="e">'+l.e+'</span><span><span class="t">'+l.t+'</span><br><span class="d">'+l.d+'</span></span>';
+  b.onclick=()=>{state.level=l.k;save();render()};
+  wrap.appendChild(b);
+ });
+ const res=document.getElementById('result');
+ if(!state.level){res.innerHTML='';return}
+ res.innerHTML='<div class="card result"><div class="lbl">A next step that fits</div><div class="step">'+STEPS[state.level][0]+'</div></div>';
+}
+render();
+</script>
+</body>
+</html>

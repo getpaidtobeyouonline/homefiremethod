@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time-Block Builder · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+h2{font-size:1.05rem;margin:4px 0 10px}
+.block{display:flex;align-items:stretch;gap:0;margin-bottom:8px;border-radius:12px;overflow:hidden}
+.block .time{background:var(--teal);color:#fff;padding:12px 10px;font-weight:800;font-size:.85rem;display:flex;align-items:center;min-width:96px;justify-content:center;text-align:center}
+.block .what{flex:1;padding:12px;background:var(--teal-tint);font-weight:700;display:flex;align-items:center;justify-content:space-between}
+.block.empty-block .what{background:#f7f7f7;color:#bbb;font-weight:600}
+.del{background:none;color:var(--muted);font-size:.85rem;padding:4px;min-height:auto}
+.colorpick{display:flex;gap:6px}
+.fill{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.fill button{background:#f4f4f4;color:#555;font-size:.78rem;padding:8px 10px;min-height:40px;border-radius:999px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Time-Block Builder</h1>
+<p class="tagline">Shape your day into simple blocks — a loose map, not a rigid cage.</p>
+</header>
+<p class="howto">How to use this: add a block for chunks of your day. Loose and flexible beats minute-by-minute every time.</p>
+
+<div class="card tint-pink">
+<label for="what">Add a block</label>
+<input id="what" placeholder="e.g. Focus work, Kids' lunch, Rest" autocomplete="off">
+<div class="row" style="margin-top:10px">
+<input id="start" type="time" style="flex:1;min-width:110px">
+<input id="end" type="time" style="flex:1;min-width:110px">
+<button class="btn-primary" id="add">Add</button>
+</div>
+<div class="fill" id="fill"></div>
+</div>
+
+<div class="card">
+<h2>Your day</h2>
+<div id="list"></div>
+</div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Reset / Start over</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-time-blocks';
+const QUICK=['Morning routine','Focus work','Kids time','Lunch','Rest / break','Errands','Dinner prep','Wind down'];
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return []}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function toMin(t){if(!t)return 0;const[h,m]=t.split(':');return +h*60+ +m}
+function fmt(t){if(!t)return '';const[h,m]=t.split(':');const hh=+h%12||12;return hh+':'+m+(+h<12?'am':'pm')}
+
+document.getElementById('add').onclick=()=>{
+ const what=document.getElementById('what').value.trim();const s=document.getElementById('start').value,e=document.getElementById('end').value;
+ if(!what||!s){alert('Add what the block is and a start time 💛');return}
+ state.push({id:Date.now(),what,s,e});state.sort((a,b)=>toMin(a.s)-toMin(b.s));
+ document.getElementById('what').value='';document.getElementById('start').value='';document.getElementById('end').value='';
+ save();render();
+};
+function render(){
+ const fill=document.getElementById('fill');fill.innerHTML='';
+ QUICK.forEach(t=>{const b=document.createElement('button');b.textContent='+ '+t;b.onclick=()=>{document.getElementById('what').value=t;document.getElementById('start').focus()};fill.appendChild(b)});
+ const list=document.getElementById('list');list.innerHTML='';
+ if(!state.length){list.innerHTML='<div class="empty">No blocks yet — and that\'s perfectly okay. Add your first chunk of the day.</div>';return}
+ state.forEach(b=>{
+  const el=document.createElement('div');el.className='block';
+  el.innerHTML='<div class="time">'+fmt(b.s)+(b.e?'<br>– '+fmt(b.e):'')+'</div><div class="what"><span class="w"></span><button class="del">✕</button></div>';
+  el.querySelector('.w').textContent=b.what;
+  el.querySelector('.del').onclick=()=>{state=state.filter(x=>x.id!==b.id);save();render()};
+  list.appendChild(el);
+ });
+}
+document.getElementById('reset').onclick=()=>{if(confirm('Clear your day?')){localStorage.removeItem(KEY);state=[];render()}};
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>"Good Enough" Affirmation · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+.aff{background:linear-gradient(135deg,var(--pink-tint),var(--teal-tint));border-radius:20px;padding:40px 24px;text-align:center;min-height:220px;display:flex;flex-direction:column;justify-content:center}
+.aff .text{font-size:1.5rem;font-weight:800;color:#333;line-height:1.4}
+.aff .e{font-size:2rem;margin-bottom:14px}
+.date{text-align:center;color:#999;font-weight:700;font-size:.85rem;margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>"Good Enough" Affirmation</h1>
+<p class="tagline">A daily, shame-free reminder that you are doing a wonderful job.</p>
+</header>
+<p class="howto">How to use this: read today's reminder. Come back tomorrow for a fresh one — or tap for another now.</p>
+
+<div class="date" id="date"></div>
+<div class="card aff" id="aff">
+<div class="e">💛</div>
+<div class="text" id="text">—</div>
+</div>
+
+<button class="btn-primary" id="another" style="width:100%">Give me another 💛</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-affirmation';
+const AFF=[
+ 'You are exactly the mom your children need.',
+ 'Done is better than perfect — and you got it done.',
+ 'You\'re allowed to have a hard day and still be a great mom.',
+ 'Your best looks different every day, and every version is enough.',
+ 'The love in your home matters more than the mess in it.',
+ 'You are doing a job no one could do better for your kids.',
+ 'Rest is productive. You\'re allowed to stop.',
+ 'You don\'t have to earn your worth. You already have it.',
+ 'A calm "good enough" beats a stressed "perfect" every time.',
+ 'Your children feel loved. That\'s the whole job, and you\'re nailing it.',
+ 'You are more patient, more capable, and stronger than you give yourself credit for.',
+ 'It\'s okay if today was just about getting through. You did.',
+ 'You are not behind. You are exactly where you need to be.',
+ 'The fact that you worry about being a good mom is proof that you are one.',
+ 'Small things done with love are never small.',
+ 'You can do hard things — you already do, every single day.',
+ 'Lower the bar today. You deserve an easier day.',
+ 'Comparison is a thief. Your family is thriving in its own way.',
+ 'You are someone\'s whole world. Never forget that.',
+ 'Whatever you managed today was enough. Truly.'
+];
+function dayIndex(){const d=new Date();const start=new Date(d.getFullYear(),0,0);return Math.floor((d-start)/86400000)}
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return {}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function show(i){document.getElementById('text').textContent=AFF[i%AFF.length]}
+document.getElementById('date').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+let idx=dayIndex()%AFF.length;
+show(idx);
+document.getElementById('another').onclick=()=>{idx=(idx+1+Math.floor(Math.random()*(AFF.length-1)))%AFF.length;show(idx)};
+</script>
+</body>
+</html>

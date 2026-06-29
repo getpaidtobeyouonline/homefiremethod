@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Found Money Finder · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+h2{font-size:1.1rem;margin:4px 0 10px}
+.total{text-align:center}
+.total .num{font-size:2.4rem;font-weight:800;color:var(--teal)}
+.total .lbl{color:#666;font-weight:700;font-size:.85rem}
+.leak{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f3f3f3}
+.leak:last-child{border-bottom:none}
+.leak input[type=checkbox]{width:24px;height:24px;min-height:24px;accent-color:var(--teal)}
+.leak .nm{flex:1}.leak.cut .nm{color:var(--muted)}
+.leak .amt{font-weight:800;color:var(--pink)}
+.leak.cut .amt{color:var(--teal)}
+.q{font-weight:700;margin-bottom:6px}
+.del{background:none;color:var(--muted);font-size:.8rem;padding:4px;min-height:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Found Money Finder</h1>
+<p class="tagline">Walk through the little leaks — check the ones you'll cut and watch the savings add up.</p>
+</header>
+<p class="howto">How to use this: tap any leak you're ready to cut this week. The total is money back in your pocket.</p>
+
+<div class="card tint-teal total">
+<div class="lbl">Found so far, per month</div>
+<div class="num" id="total">$0</div>
+<div id="cheer" style="font-weight:700;color:var(--teal)"></div>
+</div>
+
+<div class="card">
+<h2>Common little leaks</h2>
+<div class="q">Check anything you could trim. Edit the amount to match yours.</div>
+<div id="list"></div>
+<div class="row" style="margin-top:12px">
+<input id="newName" placeholder="Add your own leak" autocomplete="off" style="flex:2;min-width:120px">
+<input id="newAmt" type="number" inputmode="decimal" min="0" placeholder="$/mo" style="flex:1;min-width:80px">
+<button class="btn-secondary" id="add">Add</button>
+</div>
+</div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Reset / Start over</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-found-money';
+const SEED=[['Unused streaming service',15],['Forgotten app subscription',10],['Daily coffee out',60],['Extra phone plan features',12],['Bank/card fees',8],['Gym you don\'t use',30],['Impulse online buys',40],['Cable channels you skip',20]];
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||SEED.map((s,i)=>({id:i,nm:s[0],amt:s[1],cut:false}))}catch(e){return []}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function money(n){return '$'+(n||0).toLocaleString()}
+
+document.getElementById('add').onclick=()=>{
+ const n=document.getElementById('newName'),a=document.getElementById('newAmt');
+ const nm=n.value.trim();if(!nm)return;
+ state.push({id:Date.now(),nm,amt:parseFloat(a.value)||0,cut:false});n.value='';a.value='';save();render();
+};
+function render(){
+ const list=document.getElementById('list');list.innerHTML='';
+ state.forEach(l=>{
+  const row=document.createElement('div');row.className='leak'+(l.cut?' cut':'');
+  row.innerHTML='<input type="checkbox" '+(l.cut?'checked':'')+'><span class="nm"></span>'
+   +'<input class="amt-in" type="number" inputmode="decimal" min="0" value="'+l.amt+'" style="width:80px;text-align:right;padding:8px"><button class="del">✕</button>';
+  row.querySelector('.nm').textContent=l.nm;
+  row.querySelector('input[type=checkbox]').onchange=e=>{l.cut=e.target.checked;save();render()};
+  row.querySelector('.amt-in').oninput=e=>{l.amt=parseFloat(e.target.value)||0;save();updateTotal()};
+  row.querySelector('.del').onclick=()=>{state=state.filter(x=>x.id!==l.id);save();render()};
+  list.appendChild(row);
+ });
+ updateTotal();
+}
+function updateTotal(){
+ const m=state.filter(l=>l.cut).reduce((a,l)=>a+l.amt,0);
+ document.getElementById('total').textContent=money(m);
+ document.getElementById('cheer').textContent=m>0?('That\'s '+money(m*12)+' a year back in your hands. 🎉'):'';
+}
+document.getElementById('reset').onclick=()=>{if(confirm('Reset the leak list?')){localStorage.removeItem(KEY);state=SEED.map((s,i)=>({id:i,nm:s[0],amt:s[1],cut:false}));save();render()}};
+render();
+</script>
+</body>
+</html>

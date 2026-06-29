@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seasonal Deep-Clean Planner · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+h2{font-size:1.1rem;margin:4px 0 10px}
+.seasons{display:flex;gap:6px;margin-bottom:6px}
+.seasons button{flex:1;background:#f4f4f4;color:#555;font-size:.85rem;padding:10px 4px;min-height:44px}
+.seasons button.on{background:var(--teal);color:#fff}
+.week{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid #f3f3f3}
+.week:last-child{border-bottom:none}
+.week input[type=checkbox]{width:26px;height:26px;min-height:26px;accent-color:var(--teal);flex:0 0 auto}
+.week.done .txt{text-decoration:line-through;color:var(--muted)}
+.week .wk{font-weight:800;color:var(--pink);font-size:.8rem;min-width:54px}
+.week .txt{flex:1}
+.bar{height:12px;background:#eee;border-radius:999px;overflow:hidden;margin:10px 0}
+.bar>i{display:block;height:100%;background:var(--teal);width:0;transition:width .3s}
+.win{background:var(--teal-tint);border-radius:12px;padding:14px;text-align:center;font-weight:700;color:var(--teal);margin-top:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Seasonal Deep-Clean Planner</h1>
+<p class="tagline">The big deep clean, broken into one small task a week. No marathon required.</p>
+</header>
+<p class="howto">How to use this: pick a season and do just one task each week. Slow and steady wins this.</p>
+
+<div class="card tint-pink">
+<div class="seasons" id="seasons"></div>
+<div style="text-align:center;font-weight:700;color:#a23b73" id="seasonNote"></div>
+</div>
+
+<div class="card">
+<h2 id="title">Your weekly plan</h2>
+<div class="bar"><i id="bar"></i></div>
+<div id="list"></div>
+<div id="win"></div>
+</div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Reset / Start over</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-deep-clean';
+const PLANS={
+ Spring:['Wash windows & sills','Wipe baseboards, one floor','Declutter & wipe the pantry','Clean behind the fridge','Dust ceiling fans & vents','Wash curtains or blinds','Deep-clean the oven','Freshen mattresses & pillows'],
+ Summer:['Clean out & wipe the fridge','Tackle the garage or shed corner','Wash outdoor furniture','Clean window screens','Sort the kids\' closet','Wipe down kitchen cabinets','Clean grill / patio','Refresh entryway & shoe pile'],
+ Fall:['Swap summer/winter clothes','Wash bedding & comforters','Clean gutters or remind someone to','Dust & vacuum vents','Deep-clean bathrooms','Wipe interior doors & handles','Organize the linen closet','Vacuum under furniture'],
+ Winter:['Declutter holiday storage','Clean & descale coffee maker','Wipe light switches & remotes','Organize one kitchen drawer','Deep-clean the microwave','Wash throw blankets','Sort the medicine cabinet','Clean & reset the entry closet']
+};
+const NOTES={Spring:'Fresh air, fresh start.',Summer:'Easy does it — it\'s warm out.',Fall:'Cosy season prep.',Winter:'Small wins on cold days.'};
+const ORDER=['Spring','Summer','Fall','Winter'];
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{season:guess(),checks:{}}}catch(e){return {season:guess(),checks:{}}}}
+function guess(){const m=new Date().getMonth();return m<2||m===11?'Winter':m<5?'Spring':m<8?'Summer':'Fall'}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+
+function render(){
+ const ss=document.getElementById('seasons');ss.innerHTML='';
+ ORDER.forEach(s=>{const b=document.createElement('button');b.textContent=s;if(s===state.season)b.classList.add('on');b.onclick=()=>{state.season=s;save();render()};ss.appendChild(b)});
+ document.getElementById('seasonNote').textContent=NOTES[state.season];
+ document.getElementById('title').textContent=state.season+' deep clean — one a week';
+ const list=document.getElementById('list');list.innerHTML='';
+ const plan=PLANS[state.season];const ch=state.checks[state.season]||(state.checks[state.season]=plan.map(()=>false));
+ plan.forEach((t,i)=>{
+  const l=document.createElement('label');l.className='week'+(ch[i]?' done':'');
+  l.innerHTML='<span class="wk">Week '+(i+1)+'</span><input type="checkbox" '+(ch[i]?'checked':'')+'><span class="txt"></span>';
+  l.querySelector('.txt').textContent=t;
+  l.querySelector('input').onchange=e=>{ch[i]=e.target.checked;save();render()};
+  list.appendChild(l);
+ });
+ const done=ch.filter(Boolean).length;
+ document.getElementById('bar').style.width=(done/plan.length*100)+'%';
+ document.getElementById('win').innerHTML = done===plan.length
+  ? '<div class="win">✓ '+state.season+' deep clean, fully done — one little week at a time. Amazing.</div>'
+  : (done?'<div class="win">✓ '+done+' of '+plan.length+' weeks done. You\'re pacing this perfectly.</div>':'');
+}
+document.getElementById('reset').onclick=()=>{if(confirm('Reset this season\'s progress?')){localStorage.removeItem(KEY);state={season:guess(),checks:{}};save();render()}};
+render();
+</script>
+</body>
+</html>

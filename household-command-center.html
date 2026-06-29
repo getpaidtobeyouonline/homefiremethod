@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Household Command Center · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tabs button{background:#f4f4f4;color:#666;padding:9px 12px;border-radius:999px;font-size:.82rem}
+.tabs button.on{background:var(--pink);color:#fff}
+.entry{padding:11px 0;border-bottom:1px solid #f3f3f3}
+.entry:last-child{border-bottom:none}
+.entry .nm{font-weight:800}
+.entry .val{color:#444;word-break:break-word}
+.del{background:none;color:var(--muted);font-size:.78rem;padding:4px;min-height:auto;float:right}
+h2{font-size:1.05rem;margin:0 0 10px}
+.priv{background:var(--teal-tint);border-radius:10px;padding:10px;font-size:.8rem;color:var(--teal);font-weight:700;text-align:center;margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Household Command Center</h1>
+<p class="tagline">One calm home base for the key contacts, info, and logins your family needs.</p>
+</header>
+<p class="howto">How to use this: save the bits of info you're always hunting for. It all stays right here on your device.</p>
+
+<div class="priv">🔒 Everything is stored only on this device — nothing is sent anywhere. Avoid full passwords on shared devices.</div>
+
+<div class="card">
+<div class="tabs" id="tabs"></div>
+<h2 id="secTitle"></h2>
+<div id="list"></div>
+<div class="row" style="margin-top:10px">
+<input id="k" placeholder="Label (e.g. Doctor)" autocomplete="off" style="flex:1;min-width:120px">
+<input id="v" placeholder="Details" autocomplete="off" style="flex:2;min-width:140px">
+<button class="btn-secondary" id="add">Add</button>
+</div>
+</div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Reset / Start over</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-command-center';
+const SECTIONS=['📇 Contacts','🏥 Medical','🏠 Home & Utilities','🔑 Logins & Accounts','📝 Notes'];
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{active:0,data:{}}}catch(e){return {active:0,data:{}}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function cur(){return SECTIONS[state.active]}
+function items(){return state.data[cur()]||(state.data[cur()]=[])}
+document.getElementById('add').onclick=()=>{
+ const k=document.getElementById('k'),v=document.getElementById('v');
+ if(!k.value.trim()&&!v.value.trim())return;
+ items().push({id:Date.now(),nm:k.value.trim()||'Note',val:v.value.trim()});k.value='';v.value='';save();render();
+};
+function render(){
+ const tabs=document.getElementById('tabs');tabs.innerHTML='';
+ SECTIONS.forEach((s,i)=>{const b=document.createElement('button');b.textContent=s;if(i===state.active)b.classList.add('on');b.onclick=()=>{state.active=i;save();render()};tabs.appendChild(b)});
+ document.getElementById('secTitle').textContent=cur();
+ const list=document.getElementById('list');list.innerHTML='';
+ const arr=items();
+ if(!arr.length){list.innerHTML='<div class="empty">Nothing saved here yet — and that\'s perfectly okay. Add your first when you\'re ready.</div>';return}
+ arr.forEach(it=>{
+  const d=document.createElement('div');d.className='entry';
+  d.innerHTML='<button class="del">✕</button><div class="nm"></div><div class="val"></div>';
+  d.querySelector('.nm').textContent=it.nm;
+  d.querySelector('.val').textContent=it.val;
+  d.querySelector('.del').onclick=()=>{state.data[cur()]=arr.filter(x=>x.id!==it.id);save();render()};
+  list.appendChild(d);
+ });
+}
+document.getElementById('reset').onclick=()=>{if(confirm('Clear ALL saved info? This can\'t be undone.')){localStorage.removeItem(KEY);state={active:0,data:{}};render()}};
+render();
+</script>
+</body>
+</html>

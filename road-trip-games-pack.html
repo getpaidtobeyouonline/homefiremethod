@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Road Trip Games Pack · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+h2{font-size:1.05rem;margin:4px 0 10px}
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tabs button{flex:1;background:#f4f4f4;color:#666;font-size:.9rem}
+.tabs button.on{background:var(--teal);color:#fff}
+.game{background:var(--pink-tint);border-radius:14px;padding:18px;text-align:center;min-height:130px;display:flex;flex-direction:column;justify-content:center}
+.game .t{font-size:1.3rem;font-weight:800;color:var(--pink);margin-bottom:6px}
+.game .d{font-weight:600;color:#555}
+.item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f3f3f3}
+.item:last-child{border-bottom:none}
+.item input[type=checkbox]{width:24px;height:24px;min-height:24px;accent-color:var(--teal)}
+.item.done span{text-decoration:line-through;color:var(--muted)}
+.item span{flex:1}
+.del{background:none;color:var(--muted);font-size:.78rem;padding:4px;min-height:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Road Trip Games Pack</h1>
+<p class="tagline">Car games to keep little ones happy, plus a snack checklist for cheap travel days.</p>
+</header>
+<p class="howto">How to use this: tap "New game" for something to play, or switch to the snack tab to pack ahead.</p>
+
+<div class="card">
+<div class="tabs" id="tabs">
+<button data-t="games" class="on">🚗 Games</button>
+<button data-t="snacks">🍎 Snacks</button>
+</div>
+<div id="panel"></div>
+</div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Reset snack list</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-road-trip';
+const GAMES=[
+ ['I Spy','"I spy with my little eye, something…" — take turns guessing by color or shape.'],
+ ['License Plate Hunt','Spot plates from different states. Keep a tally of how many you find.'],
+ ['The Quiet Game','Who can stay quiet the longest? (A mom\'s favourite — and they love the challenge.)'],
+ ['Story Chain','One person starts a story with a sentence. Each person adds the next line.'],
+ ['Color Count','Pick a color. Count how many of that color car you pass in 5 minutes.'],
+ ['Animal Alphabet','Name an animal for each letter, A to Z, going around the car.'],
+ ['Would You Rather','Take turns asking silly "would you rather" questions.'],
+ ['20 Questions','One person thinks of something; others ask up to 20 yes/no questions.'],
+ ['Spot the…','Call out the first to spot a red barn, a cow, a water tower, a bridge.'],
+ ['Humming Tunes','Hum a song and see who guesses it first.'],
+ ['Rhyme Time','Say a word; the next person says a word that rhymes. Keep the chain going.'],
+ ['Sign Bingo','First to spot a stop sign, then a yellow sign, then a billboard… wins the round.']
+];
+const SNACKS=['Water bottles','Apple slices','Crackers','Cheese sticks','Pretzels','Grapes','Granola bars','Carrot sticks','Trail mix','Wet wipes','A trash bag','A "no-mess" treat'];
+let last=-1;
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{tab:'games',snacks:SNACKS.map(t=>({t,done:false}))}}catch(e){return {tab:'games',snacks:SNACKS.map(t=>({t,done:false}))}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{state.tab=b.dataset.t;save();render()});
+function render(){
+ document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===state.tab));
+ const panel=document.getElementById('panel');panel.innerHTML='';
+ if(state.tab==='games'){
+  const g=document.createElement('div');g.className='game';g.id='game';
+  g.innerHTML='<div class="t">Tap below for a game!</div><div class="d">Quick, no-mess fun for the road.</div>';
+  panel.appendChild(g);
+  const btn=document.createElement('button');btn.className='btn-primary';btn.style.cssText='width:100%;margin-top:12px';btn.textContent='🎲 New game';
+  btn.onclick=()=>{let i;do{i=Math.floor(Math.random()*GAMES.length)}while(i===last);last=i;g.innerHTML='<div class="t">'+GAMES[i][0]+'</div><div class="d">'+GAMES[i][1]+'</div>'};
+  panel.appendChild(btn);
+ }else{
+  const h=document.createElement('h2');h.textContent='Snack & supply checklist';panel.appendChild(h);
+  state.snacks.forEach(s=>{
+   const l=document.createElement('label');l.className='item'+(s.done?' done':'');
+   l.innerHTML='<input type="checkbox" '+(s.done?'checked':'')+'><span></span><button class="del">✕</button>';
+   l.querySelector('span').textContent=s.t;
+   l.querySelector('input').onchange=e=>{s.done=e.target.checked;save();render()};
+   l.querySelector('.del').onclick=()=>{state.snacks=state.snacks.filter(x=>x!==s);save();render()};
+   panel.appendChild(l);
+  });
+  const row=document.createElement('div');row.className='row';row.style.marginTop='10px';
+  row.innerHTML='<input id="add" placeholder="Add a snack" style="flex:1;min-width:140px"><button class="btn-secondary" id="addBtn">Add</button>';
+  panel.appendChild(row);
+  row.querySelector('#addBtn').onclick=()=>{const v=row.querySelector('#add').value.trim();if(v){state.snacks.push({t:v,done:false});save();render()}};
+  row.querySelector('#add').addEventListener('keydown',e=>{if(e.key==='Enter')row.querySelector('#addBtn').click()});
+ }
+}
+document.getElementById('reset').onclick=()=>{if(confirm('Reset the snack list?')){state.snacks=SNACKS.map(t=>({t,done:false}));save();render()}};
+render();
+</script>
+</body>
+</html>

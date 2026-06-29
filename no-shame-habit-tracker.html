@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>No-Shame Habit Tracker · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+h2{font-size:1.05rem;margin:0 0 6px}
+.habit .top{display:flex;justify-content:space-between;align-items:center}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:8px}
+.cell{aspect-ratio:1;border-radius:8px;background:#f1f1f1;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#bbb;cursor:pointer;font-weight:800}
+.cell.done{background:var(--teal);color:#fff}
+.cell.today{box-shadow:0 0 0 2px var(--pink)}
+.count{color:var(--teal);font-weight:800;font-size:.85rem}
+.bigbtn{width:100%;margin-top:8px}
+.del{background:none;color:var(--muted);font-size:.78rem;padding:4px;min-height:auto}
+.note{color:#a23b73;font-weight:700;font-size:.82rem;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>No-Shame Habit Tracker</h1>
+<p class="tagline">One small habit at a time — and a guilt-free restart whenever life happens.</p>
+</header>
+<p class="howto">How to use this: pick one tiny habit, tap today's box when you do it. Miss a day? No problem — just begin again.</p>
+
+<div class="card tint-teal">
+<label for="add">Add a small habit</label>
+<div class="row">
+<input id="add" placeholder="e.g. Drink water, 5-min walk" autocomplete="off" style="flex:1;min-width:140px">
+<button class="btn-secondary" id="addBtn">Add</button>
+</div>
+</div>
+
+<div id="list"></div>
+
+<div class="card tint-pink note" style="text-align:center">Streaks aren't the point — showing up again is. A missed day never erases your progress. 💛</div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Reset / Start over</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-habit';
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return []}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function stamp(d){return d.toISOString().slice(0,10)}
+function today(){return stamp(new Date())}
+
+document.getElementById('addBtn').onclick=()=>{const el=document.getElementById('add');const v=el.value.trim();if(!v)return;state.push({id:Date.now(),nm:v,days:{}});el.value='';save();render()};
+document.getElementById('add').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('addBtn').click()});
+function render(){
+ const list=document.getElementById('list');list.innerHTML='';
+ if(!state.length){list.innerHTML='<div class="card"><div class="empty">No habit yet — and that\'s perfectly okay. Start with one tiny one when you\'re ready.</div></div>';return}
+ const base=new Date();
+ state.forEach(h=>{
+  const c=document.createElement('div');c.className='card habit';
+  const count=Object.keys(h.days).length;
+  c.innerHTML='<div class="top"><h2></h2><button class="del">remove</button></div><div class="count">'+count+' day'+(count===1?'':'s')+' done — every one counts</div><div class="grid"></div><button class="btn-primary bigbtn">'+(h.days[today()]?'Done today ✓':'I did it today')+'</button>';
+  c.querySelector('h2').textContent=h.nm;
+  c.querySelector('.del').onclick=()=>{state=state.filter(x=>x.id!==h.id);save();render()};
+  const grid=c.querySelector('.grid');
+  for(let i=20;i>=0;i--){
+   const d=new Date(base);d.setDate(base.getDate()-i);const k=stamp(d);
+   const cell=document.createElement('div');cell.className='cell'+(h.days[k]?' done':'')+(k===today()?' today':'');cell.textContent=d.getDate();
+   cell.onclick=()=>{if(h.days[k])delete h.days[k];else h.days[k]=true;save();render()};
+   grid.appendChild(cell);
+  }
+  c.querySelector('.bigbtn').onclick=()=>{const k=today();if(h.days[k])delete h.days[k];else h.days[k]=true;save();render()};
+  list.appendChild(c);
+ });
+}
+document.getElementById('reset').onclick=()=>{if(confirm('Clear all habits?')){localStorage.removeItem(KEY);state=[];render()}};
+render();
+</script>
+</body>
+</html>

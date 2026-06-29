@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The "Where Is It?" Tracker · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+.item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f3f3f3}
+.item:last-child{border-bottom:none}
+.item .e{font-size:1.4rem}
+.item .mid{flex:1}
+.item .nm{font-weight:700}
+.item .loc{font-size:.85rem;color:var(--teal);font-weight:700}
+.del{background:none;color:var(--muted);font-size:.78rem;padding:4px;min-height:auto}
+.search{margin-bottom:12px}
+.ideas{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.ideas button{background:#f4f4f4;color:#555;font-size:.78rem;padding:8px 10px;min-height:40px;border-radius:999px}
+.found{background:var(--teal-tint);border-radius:14px;padding:16px;text-align:center;margin-bottom:14px}
+.found .nm{font-size:1.2rem;font-weight:800;color:var(--teal)}
+.found .loc{font-weight:700;color:#333;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>The "Where Is It?" Tracker</h1>
+<p class="tagline">Log where you stashed the seasonal & rarely-used stuff — and actually find it next time.</p>
+</header>
+<p class="howto">How to use this: whenever you put something "somewhere safe," log it here. Search to find it later in seconds.</p>
+
+<div class="card tint-pink">
+<label for="nm">Stash something</label>
+<input id="nm" placeholder="e.g. Christmas decorations" autocomplete="off">
+<div class="row" style="margin-top:10px">
+<input id="loc" placeholder="Where you put it" autocomplete="off" style="flex:1;min-width:140px">
+<button class="btn-primary" id="add">Save</button>
+</div>
+<div class="ideas" id="ideas"></div>
+</div>
+
+<div class="card">
+<input class="search" id="search" placeholder="🔍 Where is my... (type to find)" autocomplete="off">
+<div id="found"></div>
+<div id="list"></div>
+</div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Reset / Start over</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-where-is-it';
+const IDEAS=['Holiday decorations','Off-season clothes','Spare batteries','Gift wrap','Important documents','Suitcases','Camping gear','Baby items','Tools','Extra bedding'];
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return []}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function add(nm,loc){if(!nm)return;state.push({id:Date.now()+Math.random(),nm,loc:loc||''});save();render()}
+document.getElementById('add').onclick=()=>{add(document.getElementById('nm').value.trim(),document.getElementById('loc').value.trim());document.getElementById('nm').value='';document.getElementById('loc').value=''};
+document.getElementById('search').oninput=render;
+function render(){
+ const ideas=document.getElementById('ideas');ideas.innerHTML='';
+ IDEAS.forEach(t=>{if(state.some(s=>s.nm===t))return;const b=document.createElement('button');b.textContent='+ '+t;b.onclick=()=>{document.getElementById('nm').value=t;document.getElementById('loc').focus()};ideas.appendChild(b)});
+ const q=document.getElementById('search').value.trim().toLowerCase();
+ const found=document.getElementById('found');found.innerHTML='';
+ if(q){
+  const hits=state.filter(s=>s.nm.toLowerCase().includes(q));
+  if(hits.length){const top=hits[0];found.innerHTML='<div class="found"><div style="font-size:.8rem;color:#1EA5B4;font-weight:800">FOUND IT!</div><div class="nm">'+esc(top.nm)+'</div><div class="loc">📍 '+(top.loc?esc(top.loc):'location not noted')+'</div></div>'}
+  else found.innerHTML='<div class="found" style="background:var(--pink-tint)"><div class="nm" style="color:var(--pink)">No match yet</div><div class="loc">Add it once you find it — then it\'s logged forever.</div></div>';
+ }
+ const list=document.getElementById('list');list.innerHTML='';
+ const items=q?state.filter(s=>s.nm.toLowerCase().includes(q)||(s.loc||'').toLowerCase().includes(q)):state;
+ if(!items.length&&!q){list.innerHTML='<div class="empty">Nothing stashed yet — and that\'s perfectly okay. Log your first hiding spot above.</div>';return}
+ items.forEach(s=>{
+  const el=document.createElement('div');el.className='item';
+  el.innerHTML='<span class="e">📦</span><div class="mid"><div class="nm"></div><div class="loc">📍 '+(s.loc?esc(s.loc):'location not noted')+'</div></div><button class="del">✕</button>';
+  el.querySelector('.nm').textContent=s.nm;
+  el.querySelector('.del').onclick=()=>{state=state.filter(x=>x.id!==s.id);save();render()};
+  list.appendChild(el);
+ });
+}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+document.getElementById('reset').onclick=()=>{if(confirm('Clear everything?')){localStorage.removeItem(KEY);state=[];render()}};
+render();
+</script>
+</body>
+</html>

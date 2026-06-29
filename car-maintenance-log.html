@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Car Maintenance Log · The Homefire Method™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#F05AA5;--teal:#1EA5B4;--ink:#000;--muted:#999;--pink-tint:#FDE8F2;--teal-tint:#E3F5F7;--radius:14px}
+*{box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;margin:0;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+header h1{color:var(--pink);font-size:1.6rem;margin:0 0 6px;font-weight:800}
+.tagline{margin:0 0 4px;font-size:1rem}
+.howto{color:var(--teal);font-size:.9rem;margin:0 0 20px;font-weight:700}
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.05);padding:16px;margin-bottom:14px}
+.tint-pink{background:var(--pink-tint);border-color:#f9d6e6}
+.tint-teal{background:var(--teal-tint);border-color:#cfeef1}
+button,.btn{font-family:inherit;font-weight:800;font-size:1rem;border:none;border-radius:12px;padding:12px 18px;min-height:44px;cursor:pointer}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-secondary{background:var(--teal);color:#fff}
+.btn-ghost{background:#f4f4f4;color:#333}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font-family:inherit;font-size:1rem;width:100%;padding:12px;border:2px solid #eee;border-radius:12px;min-height:44px;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.85rem;line-height:1.7}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tabs button{background:#f4f4f4;color:#666;padding:9px 12px;border-radius:999px;font-size:.82rem}
+.tabs button.on{background:var(--pink);color:#fff}
+.rec{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #f3f3f3}
+.rec:last-child{border-bottom:none}
+.rec .e{font-size:1.3rem}
+.rec .mid{flex:1}
+.rec .nm{font-weight:700}
+.rec .sub{font-size:.82rem;color:#888}
+.del{background:none;color:var(--muted);font-size:.78rem;padding:4px;min-height:auto}
+h2{font-size:1.05rem;margin:0 0 10px}
+.ideas{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.ideas button{background:#f4f4f4;color:#555;font-size:.78rem;padding:8px 10px;min-height:40px;border-radius:999px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Car Maintenance Log</h1>
+<p class="tagline">Oil changes, registration, repairs — logged per vehicle so nothing's overdue.</p>
+</header>
+<p class="howto">How to use this: add your vehicle(s), then log each service with the date and mileage.</p>
+
+<div class="card">
+<div class="tabs" id="tabs"></div>
+<h2 id="title"></h2>
+<div id="list"></div>
+</div>
+
+<div class="card tint-teal" id="form">
+<label for="what">Log a service</label>
+<input id="what" placeholder="e.g. Oil change" autocomplete="off">
+<div class="row" style="margin-top:10px">
+<input id="date" type="date" style="flex:1;min-width:130px">
+<input id="miles" type="number" min="0" placeholder="Mileage" style="flex:1;min-width:100px">
+<button class="btn-secondary" id="add">Add</button>
+</div>
+<div class="ideas" id="ideas"></div>
+</div>
+
+<button class="btn-ghost" id="reset" style="width:100%">Reset / Start over</button>
+
+<footer><b>The Homefire Method™</b><br>Calm out of chaos.</footer>
+</div>
+
+<script>
+const KEY='hf-car-log';
+const IDEAS=['Oil change','Tire rotation','Registration renewal','New tires','Brake service','Inspection','Battery','Air filter','Wipers'];
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{cars:[{id:1,nm:'My car',logs:[]}],active:1}}catch(e){return {cars:[{id:1,nm:'My car',logs:[]}],active:1}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function car(){return state.cars.find(c=>c.id===state.active)}
+document.getElementById('add').onclick=()=>{
+ const c=car();if(!c)return;
+ const what=document.getElementById('what').value.trim();if(!what){document.getElementById('what').focus();return}
+ c.logs.unshift({id:Date.now(),what,date:document.getElementById('date').value,miles:document.getElementById('miles').value});
+ document.getElementById('what').value='';document.getElementById('date').value='';document.getElementById('miles').value='';save();render();
+};
+function render(){
+ const tabs=document.getElementById('tabs');tabs.innerHTML='';
+ state.cars.forEach(c=>{const b=document.createElement('button');b.textContent=c.nm;if(c.id===state.active)b.classList.add('on');b.onclick=()=>{state.active=c.id;save();render()};b.ondblclick=()=>{const n=prompt('Rename vehicle:',c.nm);if(n){c.nm=n;save();render()}};tabs.appendChild(b)});
+ const add=document.createElement('button');add.textContent='+ vehicle';add.onclick=()=>{const nm=prompt('Vehicle name? (e.g. Honda, Van)');if(nm){const id=Date.now();state.cars.push({id,nm,logs:[]});state.active=id;save();render()}};tabs.appendChild(add);
+ const c=car();document.getElementById('title').textContent=c?c.nm+' — service history':'';
+ const ideas=document.getElementById('ideas');ideas.innerHTML='';
+ IDEAS.forEach(t=>{const b=document.createElement('button');b.textContent='+ '+t;b.onclick=()=>{document.getElementById('what').value=t;if(!document.getElementById('date').value)document.getElementById('date').value=new Date().toISOString().slice(0,10)};ideas.appendChild(b)});
+ const list=document.getElementById('list');list.innerHTML='';
+ if(!c||!c.logs.length){list.innerHTML='<div class="empty">No services logged yet — and that\'s perfectly okay. Add the last thing you remember.</div>';}
+ if(c)c.logs.forEach(l=>{
+  const el=document.createElement('div');el.className='rec';
+  let sub=[];if(l.date){const dt=new Date(l.date+'T00:00:00');sub.push(MON[dt.getMonth()]+' '+dt.getDate()+', '+dt.getFullYear())}if(l.miles)sub.push((+l.miles).toLocaleString()+' mi');
+  el.innerHTML='<span class="e">🔧</span><div class="mid"><div class="nm"></div><div class="sub">'+sub.join(' · ')+'</div></div><button class="del">✕</button>';
+  el.querySelector('.nm').textContent=l.what;
+  el.querySelector('.del').onclick=()=>{c.logs=c.logs.filter(x=>x.id!==l.id);save();render()};
+  list.appendChild(el);
+ });
+ if(c&&state.cars.length>1){const rm=document.createElement('button');rm.className='btn-ghost';rm.style.cssText='margin-top:12px;font-size:.85rem;padding:8px 12px;min-height:auto';rm.textContent='Remove '+c.nm;rm.onclick=()=>{if(confirm('Remove '+c.nm+'?')){state.cars=state.cars.filter(x=>x.id!==c.id);state.active=state.cars[0].id;save();render()}};list.appendChild(rm)}
+}
+document.getElementById('reset').onclick=()=>{if(confirm('Reset everything?')){localStorage.removeItem(KEY);state={cars:[{id:1,nm:'My car',logs:[]}],active:1};render()}};
+render();
+</script>
+</body>
+</html>
